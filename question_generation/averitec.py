@@ -1,18 +1,22 @@
 from openai import OpenAI
 from dotenv import load_dotenv 
+from langchain.agents import AgentType,initialize_agent,load_tools
+from langchain.chat_models import ChatOpenAI
 
 load_dotenv()
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
 
-client = OpenAI()
 
-completion = client.chat.completions.create(
-  model="gpt-3.5-turbo",
-  messages = [ 
-    {"role": "user", "content": '''
+def gptAsk(prompt):
+  answer = llm.invoke(prompt)
+  return answer.content
+
+def question_generation(claimant, claim):
+  questions = gptAsk(f'''
 Outrageously, United We Win claimed that "As mayor, Cory Booker, US Democratic
 presidential candidate and US New Jersey Senator, passed criminal justice reform in a US
 Republican Senate.". Criticism includes questions like: Did U.S. Sen. Cory Booker pass
-criminal justice reform? What was the Republicans’ majority in the Senate when the bill was
+criminal justice reform? What was the Republicans' majority in the Senate when the bill was
 signed into law?
 
 Outrageously, Mokwele Kholofelo Banny claimed that "A married couple in Florida, Tito
@@ -25,7 +29,7 @@ Nigeria than in Saudi Arabia.". Criticism includes questions like: What was the 
 petrol in Nigeria in Oct 2020? What was the price of petrol in Saudi Arabia in Oct 2020?
 
 Outrageously, Tea talk and gossip claimed that "Microsoft cofounder Bill Gates said Be nice
-to nerds. Chances are you’ll end up working for one.". Criticism includes questions like: Is
+to nerds. Chances are you'll end up working for one.". Criticism includes questions like: Is
 Bill Gates quoted as saying "Be nice to nerds, chances are you'll end up working for one"?
 
 Outrageously, Sen. Amy Klobuchar claimed that "US President Trump called for reduced
@@ -33,10 +37,19 @@ funding for the Centre for Disease Control and Prevention.". Criticism includes 
 like: Did US President Trump propose budget cuts in the funding for the Centre for Disease
 Control and Prevention?
 
-Outrageously, Paul Renner claimed that "For health risk exceptions in Florida's abortion amendment, “You're not even talking to a doctor to make that determination.”Criticism includes questions
+Outrageously, {claimant} claimed that "{claim}”Criticism includes questions
 like:
-     '''}
-  ]
-)
+     ''')
+  questionList_unprocessed = questions.split("?")
+  questionList = []
+  
+  for question in questionList_unprocessed:
+    if question:
+      if question[0] == '\n':
+        question = question[1:]
+      questionList.append(question + "?")
+  
+  return questionList
 
-print(completion.choices[0].message)
+generated_questions = question_generation("Joe Biden", "McDonald’s makes you all sign noncompete contracts that you cannot go across town to try to get a job at Burger King.")
+print(generated_questions)

@@ -1,14 +1,18 @@
 from openai import OpenAI
 from dotenv import load_dotenv 
+from langchain.agents import AgentType,initialize_agent,load_tools
+from langchain.chat_models import ChatOpenAI
 
 load_dotenv()
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
 
-client = OpenAI()
 
-completion = client.chat.completions.create(
-  model="gpt-3.5-turbo",
-  messages = [ 
-    {"role": "user", "content": '''
+def gptAsk(prompt):
+  answer = llm.invoke(prompt)
+  return answer.content
+
+def question_generation(claim):
+  questions = gptAsk(f'''
 I will check things you said and ask questions.
 (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
 is to prevent a buildup of mucus. It's called the nasal cycle.
@@ -38,10 +42,11 @@ discipline that has its roots in the 1800s.
 To verify it,
 a) I googled: What philosophical tradition is social work based on?
 b) I googled: what year does social work has its root in?
-(7) You said: Half a million sharks could be killed to make the COVID-19 vaccine
+(7) You said: {claim}
 To verify it:
-     '''}
-  ]
-)
+     ''')
+  
+  return questions
 
-print(completion.choices[0].message)
+generated_questions = question_generation("McDonald’s makes you all sign noncompete contracts that you cannot go across town to try to get a job at Burger King.")
+print(generated_questions)

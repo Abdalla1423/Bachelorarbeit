@@ -8,6 +8,7 @@ from langchain.retrievers.web_research import WebResearchRetriever
 from langchain.chains import RetrievalQAWithSourcesChain
 from dotenv import load_dotenv
 from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_community.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
     
 def langchain_qa(question):
     # loading variables from .env file
@@ -23,8 +24,6 @@ def langchain_qa(question):
     vectorstore=vectorstore,
     llm=llm,
     search=search,
-    num_search_results=3,
-
     )
 
     qa_chain = RetrievalQAWithSourcesChain.from_chain_type(llm,retriever=web_research_retriever) 
@@ -32,7 +31,9 @@ def langchain_qa(question):
     
     return result
 
-langchain_qa("wer hat die muslim brüderschaft gegründet und wo?")
+result = langchain_qa("wer hat die muslim brüderschaft gegründet und wo?")
+print(result["answer"])
+print(result["sources"])
 
     # # we get the results for user query with both answer and source url that were used to generate answer
     # print(result["answer"])

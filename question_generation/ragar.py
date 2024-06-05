@@ -9,22 +9,19 @@ from dotenv import load_dotenv
 from langchain.agents import AgentType,initialize_agent,load_tools
 from langchain.chat_models import ChatOpenAI
 from dotenv import load_dotenv
+from langchain.agents import AgentType, Tool, initialize_agent
+from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_openai import OpenAI
 import ast
 
 load_dotenv()
 
 
-client = OpenAI()
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
 
 def gptAsk(prompt):
-  completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages = [ 
-      {"role": "user", "content": prompt}
-    ]
-  )
-  
-  return completion.choices[0].message.content
+  answer = llm.invoke(prompt)
+  return answer.content
 
 def initialQuestion(claim, date):
   return gptAsk(f'''
@@ -61,10 +58,21 @@ def initialQuestion(claim, date):
 
 
 def questionAnswering(question):
-  llm = ChatOpenAI(model_name="gpt-3.5-turbo-16k", temperature=0, streaming=True)
-  tools=load_tools(["ddg-search"],llm=llm)
-  agent=initialize_agent(tools,llm,agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,verbose=True, handle_parsing_errors=True)
-  return agent.run(question)
+  search = search = DuckDuckGoSearchRun()
+  tools = [
+      Tool(
+          name="Intermediate Answer",
+          func=search.run,
+          description="useful for when you need to ask with search",
+      )
+  ]
+
+  self_ask_with_search = initialize_agent(
+      tools, llm, agent=AgentType.SELF_ASK_WITH_SEARCH, verbose=True, handle_parsing_errors=True
+  )
+  return self_ask_with_search.run(
+      question
+  )
 
 def followupQuestion(claim, qa_pairs):
   return gptAsk(f'''You are given an unverified statement and
