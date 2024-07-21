@@ -1,0 +1,57 @@
+- poetry verwendet statt env
+- google fragen wegen credits, gemini, openai, together.ai
+- google colab über langchain, vllm
+- serper fürs erste reichen
+- langchain code kopieren und selber anpassen
+- datensatz reduzieren
+- 2 Modelle reicht (ein API und ein Opensource)
+- CREDIBLE, UNRELIABLE OR LEAKED?: EVIDENCE VERIFICATION FOR ENHANCED AUTOMATED FACT-CHECKING --> CREDIBILITY ASSESMENT
+--> ANSCHREIBEN WENN ES KEIN MODELL GIBT ODER datensatz (DANN TRAINIEREN) (NATURAL LANGUAGE INFERNENCE)
+- spezifizieren reasoning als setting
+
+Wichtig
+- SAUBERE FORSCHUNG
+- CODE sollte reproduzierbar sein
+- Eigenleistung --> fragen
+- https://github.com/mever-team/credule-dataset
+
+Premtims question: How can large language models be integrated with and without external knowledge bases to enable automated fact-checking of real-world claims?
+
+
+- mehr text
+- was ist das problem und was nutzte ich als Lösung --> wieso und was sind 
+- was genutzt is egal
+- eine ebene drüber bei methidik
+- warum will ich die settings nehmen
+- description ection oder subsubsection statt komische überschroft
+- form bachleorarbeit
+- RAG sollte nicht das Problem von hallucinations lösen sondern einfach für externe informationen
+- halluzinationen kommt davon das es stochastisches modell ist
+
+Introduction ist gut
+
+Foundation
+- von generell zu speziell
+- LLM erklären --> RAG erklären --> FAct Checking --> Fact news detection
+
+Methodik
+
+- erstmal generell dann spezifisch (was genau du benutzt)
+
+Evaulutaion
+- Experimental setup (welche Modelle usw.)
+- Dataset erklären
+- Hypothesen aufstellen
+- Analyse von Hypothesen
+
+Conslusion
+
+Von generell --> spezifisch
+
+
+Zwischen chaptern 
+
+https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-iv/faecher/informatikwissenschaften/informationen-zur-wirtschaftsinformatik/studierende/leitfaden-wissenschaftliches-arbeiten#c416132
+
+- exposè vor august
+- TUB-Cluster 

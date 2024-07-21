@@ -1,0 +1,34 @@
+Samstag
+- Credibility Dataset abchecken
+- Llama oder Phi aufsetzen und Testen
+    - Llama3 7B/13B local oder google colab
+    - Llama 80B mit petal --> dauert sehr lange
+    - vLLM --> macht es schneller?, benutzt Llama wie OpenAI API
+    - LMStudio --> saubere UI, benutzt Llama wie OpenAI API
+    - Ollama
+    - Möglichkeiten: Local ohne Server, Local mit Server, Auf Colab ohne Server, Auf Colab mit Server 
+    --> sinnvollste Variante: Colab mit Server
+    - Schritte dahin: Ollama auf Colab --> NGROK als Server --> Local aufrufen
+    - braucht GPU-Cluster oder von TU bezahlt
+- Code sauber aufsetzen
+- Serper Retriever aufsetzen
+- andere prompt frameworks abchecken
+- Dataset mit Code verbinden
+
+Sonntag
+- Testläufe mit Dataset
+- Settings implementieren und Testen
+- Llama aufsetzen und Testen
+
+--> implementierung fertig
+--> Testphase
+--> Schreibphase
+--> Abgeben
+
+Montag bei der Arbeit
+- Zugang zu SAP Modellen abklären
+
+Donnerstag bei Premti Gespräch
+- Antrag wegen OPEN AI credits
+- TU GPU-Cluster
+
