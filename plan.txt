@@ -32,3 +32,20 @@ Donnerstag bei Premti Gespräch
 - Antrag wegen OPEN AI credits
 - TU GPU-Cluster
 
+Interessant für Schreiben
+- https://arxiv.org/pdf/2407.02351
+
+Interessant für Baseline
+- MiniCheck: https://arxiv.org/abs/2404.10774
+- fine tuning
+
+Interessant für nur Prompt framework
+- https://arxiv.org/pdf/2311.06592 --> prompt framework ohne retrieval
+- denk dir dein eigenes aus
+
+Heute
+- prompt_frameworks Testen
+- settings implementieren
+- TU GPU Cluster ausprobieren
+- dataset verbinden mit settings
+
