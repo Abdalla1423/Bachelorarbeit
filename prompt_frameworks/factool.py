@@ -1,7 +1,7 @@
-from models.models import gptAsk
+from models.models import gpt3Ask
 
 def question_generation(claim):
-  questions = gptAsk(f'''
+  questions = gpt3Ask(f'''
 You are a query generator designed to help users verify a given claim using
 search engines. Your primary task is to generate a Python list of two effective
 and skeptical search engine queries. These queries should assist users in critically evaluating the factuality of a provided claim using search engines. You

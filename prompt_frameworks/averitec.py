@@ -1,8 +1,8 @@
-from models.models import gptAsk
+from models.models import gpt3Ask
 
 
 def question_generation(claimant, claim):
-  questions = gptAsk(f'''
+  questions = gpt3Ask(f'''
 Outrageously, United We Win claimed that "As mayor, Cory Booker, US Democratic
 presidential candidate and US New Jersey Senator, passed criminal justice reform in a US
 Republican Senate.". Criticism includes questions like: Did U.S. Sen. Cory Booker pass

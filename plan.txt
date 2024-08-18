@@ -44,8 +44,14 @@ Interessant für nur Prompt framework
 - denk dir dein eigenes aus
 
 Heute
-- prompt_frameworks Testen
+- prompt_frameworks Testen Done
 - settings implementieren
 - TU GPU Cluster ausprobieren
 - dataset verbinden mit settings
+
+Heute
+- prompt_frameworks Testen
+- den rest fertig implementieren
+- tu gpu Cluster Testen
+- premtim schreiben
 

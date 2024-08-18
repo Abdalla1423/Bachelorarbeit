@@ -6,7 +6,7 @@ load_dotenv()
 
 
 llm = GPT_3
-search = search = DuckDuckGoSearchRun()
+search = DuckDuckGoSearchRun()
 tools = [
     Tool(
         name="Intermediate Answer",

@@ -1,8 +1,8 @@
-from models.models import gptAsk
+from models.models import askModel
 from retriever.google_retriever import google_search
 
 def question_generation(claim):
-  questions = gptAsk(f'''
+  questions = askModel(f'''
 I will check things you said and ask questions.
 (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
 is to prevent a buildup of mucus. It's called the nasal cycle.
@@ -38,5 +38,35 @@ To verify it:
   
   return questions
 
-generated_questions = question_generation("McDonald’s makes you all sign noncompete contracts that you cannot go across town to try to get a job at Burger King.")
-print(generated_questions)
+def extract_questions(unprocessed_list):
+  # Split the string by newlines
+  lines = unprocessed_list.split('\n')
+  questions = [line.split(': ', 1)[1] if ':' in line else line.split(')', 1)[1] for line in lines]
+  return questions
+
+def veracityPrediction(claim, qa_pairs):
+  return askModel(f'''You are a well-informed and expert fact-checker.
+You are provided with question-answer pairs regarding the following claim: {claim}
+These are the provided questions and relevant answers to the question to verify the claim:
+< {qa_pairs}>
+Based strictly on the main claim and the question-answers provided (ignoring questions regarding image if they
+dont have an answer), You have to provide:
+- claim: the original claim,
+- rating: the rating for claim should be "supported" if and only if the Question Answer Pairs specifically
+support the claim, "refuted" if and only if the Question Answer Pairs specifically refute the claim or "failed":
+if there is not enough information to answer the claim appropriately.
+- factcheck: and the detailed and elaborate fact-check paragraph.
+please output your response in the demanded json format''')
+
+def rarr(claim):
+  generated_questions = question_generation(claim)
+  extracted_questions = extract_questions(generated_questions)
+  qa_pairs = []
+  
+  for question in extracted_questions:
+    answer = google_search(question)
+    qa_pairs.append((question, answer))
+    
+  return veracityPrediction(claim, qa_pairs)
+
+# print(rarr("Today President Biden died."))

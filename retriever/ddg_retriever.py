@@ -8,4 +8,4 @@ def ddg_search(query):
     search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
     return search.run(query)
 
-print(ddg_search("Obama's first name?"))
+# print(ddg_search("Obama's first name?"))
