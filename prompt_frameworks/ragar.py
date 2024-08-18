@@ -1,7 +1,7 @@
 # https://www.youtube.com/watch?v=JtZgVN84cN8
 
 from models.models import askModel
-from retriever.google_retriever import google_search
+from retriever.retriever import retrieve
 import ast
 
 def initialQuestions(claim):
@@ -149,7 +149,7 @@ def singleCoRag(claim, question):
   followUpNeeded = True
   
   while counter < 6 and followUpNeeded:
-    answer = google_search(question)
+    answer = retrieve(question)
     # print("answer: ", answer)
     qa_pairs.append((question, answer))
     followUpNeededAnswer = followupCheck(claim, qa_pairs)

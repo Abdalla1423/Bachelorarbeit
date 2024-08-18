@@ -1,6 +1,5 @@
 from models.models import askModel
-from retriever.google_retriever import google_search
-
+from retriever.retriever import retrieve
 
 # prompt = ['''
 # Claim: "Emerson Moser, who was Crayola’s top crayon molder for almost 40 years, was colorblind."
@@ -234,7 +233,7 @@ def hiss(claim):
       print('question')
       print(question)
       print('Answer:')
-      external_answer = ''.join(google_search(question))
+      external_answer = ''.join(retrieve(question))
       print('external_answer')
       print(external_answer)
       cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 

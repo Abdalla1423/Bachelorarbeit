@@ -1,5 +1,5 @@
 from models.models import askModel
-from retriever.google_retriever import google_search
+from retriever.retriever import retrieve
 
 def question_generation(claim):
   questions = askModel(f'''
@@ -64,7 +64,7 @@ def rarr(claim):
   qa_pairs = []
   
   for question in extracted_questions:
-    answer = google_search(question)
+    answer = retrieve(question)
     qa_pairs.append((question, answer))
     
   return veracityPrediction(claim, qa_pairs)

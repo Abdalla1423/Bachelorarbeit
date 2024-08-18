@@ -5,7 +5,8 @@ from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 
 def ddg_search(query):
     wrapper = DuckDuckGoSearchAPIWrapper(region="de-de", time="d", max_results=2)
-    search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
+    # search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
+    search = DuckDuckGoSearchRun()
     return search.run(query)
 
 # print(ddg_search("Obama's first name?"))
