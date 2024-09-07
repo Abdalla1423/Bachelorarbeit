@@ -1,6 +1,8 @@
 from models.models import askModel
 from retriever.retriever import retrieve
 
+# choose true for evidence supporting the claim, uncertain for neutral or conflicting evidence and false for refuting or no evidence
+
 def question_generation(claim):
   questions = askModel(f'''
 I will check things you said and ask questions.
@@ -49,12 +51,9 @@ def veracityPrediction(claim, qa_pairs):
 You are provided with question-answer pairs regarding the following claim: {claim}
 These are the provided questions and relevant answers to the question to verify the claim:
 < {qa_pairs}>
-Based strictly on the main claim and the question-answers provided (ignoring questions regarding image if they
-dont have an answer), You have to provide:
+Based strictly on the main claim and the question-answers provided, You have to provide:
 - claim: the original claim,
-- rating: the rating for claim should be "supported" if and only if the Question Answer Pairs specifically
-support the claim, "refuted" if and only if the Question Answer Pairs specifically refute the claim or "failed":
-if there is not enough information to answer the claim appropriately.
+- rating: choose among true, half-true and false
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format''')
 
@@ -66,7 +65,7 @@ def rarr(claim):
   for question in extracted_questions:
     answer = retrieve(question)
     qa_pairs.append((question, answer))
-    
+  
   return veracityPrediction(claim, qa_pairs)
 
 # print(rarr("Today President Biden died."))
