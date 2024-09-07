@@ -50,3 +50,4 @@ def google_search(query):
 #     scores = bm25.get_scores(tokenized_query)
 #     top_text_index = np.argmax(scores) 
 #     return texts[top_text_index]
+
