@@ -50,8 +50,10 @@ Heute
 - dataset verbinden mit settings
 
 Heute
-- prompt_frameworks Testen
-- den rest fertig implementieren
+- prompt_frameworks Testen Done
+- klare interfaces definieren Done
+- definer interface for other models
+- datensatz testen
 - tu gpu Cluster Testen
 - premtim schreiben
 

@@ -57,3 +57,4 @@ https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-iv/faeche
 - TUB-Cluster 
 
 '[snippet: Spending on sickness and disability benefits is set to increase by £30bn over the next five years according to the OBR; Too many people trapped in low paid, poor quality work, with little ..., title: Politics latest: Starmer under pressure to scrap two-child benefit cap ..., link: https://news.sky.com/story/kings-speech-labour-keir-starmer-latest-live-12593360]'
+export PYTHONPATH=$PYTHONPATH:/Users/abdallaeltayeb/Desktop/BA/Bachelorarbeit
