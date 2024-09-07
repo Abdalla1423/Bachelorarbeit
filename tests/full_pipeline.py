@@ -1,6 +1,8 @@
 from prompt_frameworks.ragar import multiCoRAG
 from prompt_frameworks.hiss import hiss
 from prompt_frameworks.rarr import rarr
+from prompt_frameworks.baseline import base
+from prompt_frameworks.baseline import base_fewshot
 from enum import Enum
 import ast
 import pandas as pd
@@ -9,8 +11,10 @@ class PF_ENUM(Enum):
     RAGAR = 'RAGAR'
     HISS = 'HISS'
     RARR = 'RARR'
+    BASELINE = 'BASELINE'
+    BASELINE_FEWSHOT = 'BASELINE_FEWSHOT'
 
-pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss, PF_ENUM.RARR: rarr}
+pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss, PF_ENUM.RARR: rarr, PF_ENUM.BASELINE: base, PF_ENUM.BASELINE_FEWSHOT: base_fewshot}
 
 def evaluate(claim, pf):
     verdict_str = pf_dict[pf](claim)
@@ -24,7 +28,7 @@ sampled_data_file = 'sampled_statements.xlsx'
 sampled_data = pd.read_excel(sampled_data_file)
 
 # Select only the first 5 statements
-sampled_data = sampled_data.head(5)
+sampled_data = sampled_data.head(20)
 
 # Extract the part of the statement after the colon
 sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':', 1)[-1].strip() if ':' in x else x)
@@ -34,15 +38,16 @@ sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
     sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
+    print(sampled_data)
     
     # Create a new DataFrame with the required columns
     evaluated_data = sampled_data[['Statement', 'Determined Veracity']].copy()
     evaluated_data['Original Veracity'] = sampled_data['Veracity']
-    
+    print(evaluated_data)
     # Save the output to a new file
     output_file_path = f'evaluated_data_{strategy}.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
 
 # Run the evaluation for all strategies
-evaluate_strategies(sampled_data, PF_ENUM.RARR)
+evaluate_strategies(sampled_data, PF_ENUM.BASELINE_FEWSHOT)
