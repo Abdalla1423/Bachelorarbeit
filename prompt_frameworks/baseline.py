@@ -3,7 +3,7 @@ import re
 
 def base(claim):
   return askModel(f'''You are a well-informed and expert fact-checker.
-You are provided with question-answer pairs regarding the following claim: {claim}
+You are provided with the following claim: {claim}
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
@@ -64,4 +64,4 @@ def base_fewshot(claim):
     rating, explanation = extract_rating_and_explanation(result)
     return '{\n"claim": "' +  claim + '",\n"rating": "' + rating + '",\n"factcheck": "' + explanation.replace('"', '') + '"\n}'
 
-# print(base_fewshot('OBAMA IS DEAD'))
+print(base('David Cicilline was the state representative who opposed tough mandatory sentences for those convicted of domestic violence  and child abuse.'))
