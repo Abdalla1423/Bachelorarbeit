@@ -59,6 +59,7 @@ please output your response in the demanded json format''')
 
 def rarr(claim):
   generated_questions = question_generation(claim)
+  print(generated_questions)
   extracted_questions = extract_questions(generated_questions)
   qa_pairs = []
   

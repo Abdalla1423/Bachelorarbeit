@@ -10,6 +10,7 @@ from prompt_frameworks.folk import folk
 from enum import Enum
 import ast
 import pandas as pd
+import json
 
 
 class PF_ENUM(Enum):
@@ -74,7 +75,7 @@ def evaluate_strategies(sampled_data, strategy):
     evaluated_data['Original Veracity'] = sampled_data['Veracity']
     print(evaluated_data)
     # Save the output to a new file
-    output_file_path = f'evaluated_data_{strategy}.xlsx'
+    output_file_path = f'evaluated_data_{strategy}_llama7b.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
     return evaluated_data
@@ -112,7 +113,7 @@ def determine_score_file(file_path = "./evaluated_data_PF_ENUM.RAGAR.xlsx"):
 # print(determine_score_file())
 
 
-print(evaluate_and_determine_score(PF_ENUM.RAGAR))
+print(evaluate_and_determine_score(PF_ENUM.RARR))
     
 
 # Run the evaluation for all strategies
