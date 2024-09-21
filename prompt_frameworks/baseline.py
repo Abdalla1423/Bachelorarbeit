@@ -1,15 +1,18 @@
 from models.models import askModel
 import re
+from models.models import askLlama
 
 def base(claim):
-  return askModel(f'''You are a well-informed and expert fact-checker.
+  result = askModel(f'''You are a well-informed and expert fact-checker.
 You are provided with the following claim: {claim}
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
 - rating: choose among true, half-true and false only,
 - factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format''')
+please output your response in the demanded json format and no other characters''')
+  print(result)
+  return result.replace("\n", "")
   
 def fewshot(claim):
      return askModel(f"""
@@ -64,4 +67,4 @@ def base_fewshot(claim):
     rating, explanation = extract_rating_and_explanation(result)
     return '{\n"claim": "' +  claim + '",\n"rating": "' + rating + '",\n"factcheck": "' + explanation.replace('"', '') + '"\n}'
 
-print(base('David Cicilline was the state representative who opposed tough mandatory sentences for those convicted of domestic violence  and child abuse.'))
+# print(base('David Cicilline was the state representative who opposed tough mandatory sentences for those convicted of domestic violence  and child abuse.'))
