@@ -24,8 +24,69 @@ SERPER_API_KEY = os.environ.get('SERPER_API_KEY')
 SERP_API_KEY = os.environ.get('SERP_API_KEY')
 url = "https://google.serper.dev/search"
 
+fact_checking_domains = [
+    "snopes.com",
+    "politifact.com",
+    "factcheck.org",
+    "truthorfiction.com",
+    "fullfact.org",
+    "leadstories.com",
+    "factcheck.afp.com",
+    "reuters.com/fact-check",
+    "washingtonpost.com/news/fact-checker",
+    "apnews.com/APFactCheck",
+    "mediabiasfactcheck.com",
+    "theferret.scot",
+    "africacheck.org",
+    "poynter.org",
+    "checkyourfact.com",
+    "vox.com/fact-check",
+    "opensecrets.org",
+    "hoax-slayer.com",
+    "facta.news",
+    "maldita.es",
+    "verafiles.org",
+    "boomlive.in",
+    "altnews.in"
+]
+
+social_media_websites = [
+    "facebook.com",
+    "twitter.com",
+    "x.com",
+    "instagram.com",
+    "reddit.com",
+    "youtube.com",
+]
+
+fake_news_websites = [
+    "infowars.com",
+    "breitbart.com",
+    "yournewswire.com",
+    "theonion.com",  # Satirical site often confused with real news
+    "naturalnews.com",
+    "prntly.com",
+    "rt.com",  # Russian state-sponsored outlet often accused of disinformation
+    "sputniknews.com",  # Another Russian state-sponsored news site
+    "newswars.com",
+    "beforeitsnews.com",
+    "conservativedailypost.com",
+    "americannews.com",
+    "libertywriters.com",
+    "truepundit.com",
+    "gatewaypundit.com",
+    "dailywire.com",
+    "wakingtimes.com",
+    "neonnettle.com",
+    "worldtruth.tv",
+    "realnewsrightnow.com",  # Satirical
+    "now8news.com"
+]
+
 # List of restricted domains
-restricted_domains = ["politifact", "factcheck.org", "snopes.com"]
+restricted_domains = fact_checking_domains + social_media_websites + fake_news_websites
+# restricted_domains = ["politifact", "factcheck.org", "snopes.com"]
+
 
 def scrape_website_content(url):
     try:
@@ -112,10 +173,11 @@ def serper_search(query):
       if not any(restricted_domain in domain for restricted_domain in restricted_domains):
         # content = extract_and_rank(domain, query)
         # if content:
-          # information.append(content)
-        if snippet:
-          information.append(snippet)
+        #   information.append(content)
+        # elif snippet:
+        #   information.append(snippet)
           # print(snippet)
+        information.append(snippet)
   
   return information
 
