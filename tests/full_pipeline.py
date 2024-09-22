@@ -43,9 +43,10 @@ matching_logic = {
     'not checkable': ['barely-true', 'false', 'pants-fire'],
 }
 
-def evaluate(claim, pf):
-    verdict_str = pf_dict[pf](claim)
-    print(verdict_str)
+def evaluate(claim, pf, name):
+    statement = name + " claims " + claim
+    verdict_str = pf_dict[pf](statement)
+    # print(verdict_str)
     verdict = ast.literal_eval(verdict_str)
     print(verdict)
     veracity = verdict["rating"]
@@ -53,7 +54,8 @@ def evaluate(claim, pf):
 
 def preprocess():
     # Load the sampled data
-    sampled_data_file = 'sampled_statements.xlsx'
+    sampled_data_file = 'sample_statements_with_all_columns_numbers.xlsx'
+    # sampled_data_file = 'sampled_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
 
     # Select only the first 5 statements
@@ -67,8 +69,8 @@ def preprocess():
 # Function to evaluate and save results for each strategy
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
-    sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
-    print(sampled_data)
+    sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
+    # print(sampled_data)
     
     # Create a new DataFrame with the required columns
     evaluated_data = sampled_data[['Statement', 'Determined Veracity']].copy()
@@ -88,24 +90,22 @@ def evaluate_and_determine_score(strategy):
 
 def determine_score(evaluated_data):
     # Convert both columns to lowercase for case-insensitive comparison
-    evaluated_data['Original Veracity'] = evaluated_data['Original Veracity'].str.lower()
-    evaluated_data['Determined Veracity'] = evaluated_data['Determined Veracity'].str.lower()
-    # print(evaluated_data)
+    evaluated_data['Original Veracity'] = evaluated_data['Original Veracity'].astype(str).str.lower()
+    evaluated_data['Determined Veracity'] = evaluated_data['Determined Veracity'].astype(str).str.lower()
 
     # Check for matches
     evaluated_data['Match'] = evaluated_data.apply(
         lambda row: row['Original Veracity'] in matching_logic.get(row['Determined Veracity'], []),
         axis=1
     )
-    
-    print(evaluated_data)
 
     # Count the number of matches
     matches_count = evaluated_data['Match'].sum()
-
+    # print(f"Number of matches: {matches_count}")
+    
     return matches_count
 
-def determine_score_file(file_path = "./evaluated_data_PF_ENUM.RAGAR.xlsx"):
+def determine_score_file(file_path = "20_statements/evaluated_data_PF_ENUM.BASELINE_FEWSHOT.xlsx"):
     df = pd.read_excel(file_path)
     matches_count = determine_score(df)
     return matches_count
@@ -113,7 +113,9 @@ def determine_score_file(file_path = "./evaluated_data_PF_ENUM.RAGAR.xlsx"):
 # print(determine_score_file())
 
 
-print(evaluate_and_determine_score(PF_ENUM.HISS))
+# print(determine_score_file())
+print(evaluate_and_determine_score(PF_ENUM.RARR))
+# print(evaluate_and_determine_score(PF_ENUM.RARR))
     
 
 # Run the evaluation for all strategies
@@ -125,4 +127,11 @@ print(evaluate_and_determine_score(PF_ENUM.HISS))
 # HISS 57 20$
 # keyword 59 6$
 
+# 
+# base
+# statement: 69
+# claim: 62
 
+# rarr
+# statement: 74
+# claim: 59
