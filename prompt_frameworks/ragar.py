@@ -3,6 +3,7 @@
 from models.models import askModel
 from retriever.retriever import retrieve
 import ast
+import re
 
 def initialQuestions(claim):
   return askModel(f'''
@@ -182,7 +183,7 @@ def multiCoRAG(claim):
   # questions_list = questions.split('\n')
   # questions_list = [question[2:] for question in questions_list]
   # print(questions_list)
-  questions_list = ast.literal_eval(questions)
+  questions_list = extract_questions(questions.replace('"', ""))
   qa_pairs = []
   for question in questions_list:
     qa_pairs += singleCoRag(claim, question)
@@ -226,6 +227,23 @@ def singleCoRag(claim, question):
   return qa_pairs
   
 # print(multiCoRAG("State lawmakers are spending taxpayer money for parking that billionaire Arthur Blank could build while paying some state employees so little they are on food stamps."))
+
+def extract_questions(questions):
+
+  # Step 1: Replace the single quotes at the start of the list or after commas with double quotes
+  fixed_string = re.sub(r"(?<=\[)'|(?<=, )'", '"', questions)
+
+  # Step 2: Replace the single quotes before commas with double quotes
+  fixed_string = re.sub(r"'(?=,)", '"', fixed_string)
+
+  # Step 3: Replace the final single quote before the closing bracket with a double quote
+  fixed_string = re.sub(r"'(?=])", '"', fixed_string)
+
+  # Convert the fixed string to a list using ast.literal_eval
+  output_list = ast.literal_eval(fixed_string)
+
+  # Print the result
+  return output_list
 
 
 
