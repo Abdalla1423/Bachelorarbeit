@@ -15,7 +15,7 @@ import ast
 from serpapi import GoogleSearch
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-nltk.download('punkt')
+# nltk.download('punkt')
 from selenium import webdriver
 from newspaper import Article
 
