@@ -44,7 +44,8 @@ matching_logic = {
     'mostly false': ['barely-true', 'false', 'pants-fire'],
 }
 
-def evaluate(claim, pf, name):
+def evaluate(claim: str, pf, name = ''):
+    # cleaned_claim = claim.replace("'", '').replace('"','')
     statement = name + " claims " + claim
     verdict_str = pf_dict[pf](statement)
     try:
@@ -60,8 +61,8 @@ def evaluate(claim, pf, name):
 
 def preprocess():
     # Load the sampled data
-    sampled_data_file = 'sample_statements_with_all_columns_numbers.xlsx'
-    # sampled_data_file = 'sampled_statements.xlsx'
+    sampled_data_file = 'politifact_datasets/sample_statements_with_all_columns_numbers.xlsx'
+    # sampled_data_file = 'politifact_datasets/sampled_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
 
     # Select only the first 5 statements
@@ -76,7 +77,7 @@ def preprocess():
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
     sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
-    # sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
+     #sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
     # print(sampled_data)
     
     # Create a new DataFrame with the required columns
@@ -84,7 +85,7 @@ def evaluate_strategies(sampled_data, strategy):
     evaluated_data['Original Veracity'] = sampled_data['Veracity']
     # print(evaluated_data)
     # Save the output to a new file
-    output_file_path = f'evaluated_data_{strategy}_100.xlsx'
+    output_file_path = f'evaluated_data_{strategy}.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
     return evaluated_data
@@ -118,11 +119,11 @@ def determine_score_file(file_path = "20_statements/evaluated_data_PF_ENUM.BASEL
     return matches_count
 
 # print(determine_score_file())
-print(evaluate_and_determine_score(PF_ENUM.RAGAR))
+print(evaluate_and_determine_score(PF_ENUM.RARR))
 
 
 # print(determine_score_file())
-print(evaluate_and_determine_score(PF_ENUM.RARR))
+# print(evaluate_and_determine_score(PF_ENUM.RARR))
 # print(evaluate_and_determine_score(PF_ENUM.RARR))
 # print(evaluate_and_determine_score(PF_ENUM.BASELINE))
 # print(evaluate_and_determine_score(PF_ENUM.KEYWORD))

@@ -8,7 +8,7 @@ You are provided with the following claim: {claim}
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
-- rating: choose among true, half-true and false only,
+- rating: choose between true and false,
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
   # print(result)

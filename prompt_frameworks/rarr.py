@@ -57,7 +57,7 @@ These are the provided questions and relevant answers to the question to verify 
 < {qa_pairs}>
 Based strictly on the main claim and the question-answers provided, You have to provide:
 - claim: the original claim,
-- rating: choose among true, half-true and false
+- rating: choose among true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
 
