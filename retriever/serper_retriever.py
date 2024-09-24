@@ -164,6 +164,9 @@ def serper_search(query):
   response = ast.literal_eval(response.text)
   
   information = []
+
+  if 'organic' not in response:
+    return ['No information']
     
     # Extract snippets and filter out restricted domains
   for item in response['organic']:

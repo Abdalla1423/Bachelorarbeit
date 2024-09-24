@@ -61,7 +61,7 @@ def initialQuestion(claim):
   6: Create a pointed factcheck question
   for the claim.
   Return only a python list containing the
-  question and nothing else.
+  question and no other text.
       ''')
 
 def followupQuestion(claim, qa_pairs):
@@ -123,7 +123,7 @@ dont have an answer), You have to provide:
 - claim: the original claim,
 - rating: choose among true, half-true and false,
 - factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format''')
+please output your response in the demanded json format and no other characters''')
   
 def COTVeracityPrediction(claim, qa_pairs):
   return askModel(f'''You are a well-informed and expert fact-checker.
@@ -203,18 +203,18 @@ def answerCorrectedQA(corrected_questions_list):
 
 
 def singleCoRag(claim, question):
-  print("next question: ", question)
+  # print("next question: ", question)
   qa_pairs = []
   counter = 0
   followUpNeeded = True
   
   while counter < 6 and followUpNeeded:
     answer = retrieve(question)
-    print("answer: ", answer)
+    # print("answer: ", answer)
     qa_pairs.append((question, answer))
     followUpNeededAnswer = followupCheck(claim, qa_pairs)
     # print("Follow up needed: ", followUpNeededAnswer)
-    if followUpNeededAnswer == "No":
+    if followUpNeededAnswer == "No" or followUpNeededAnswer == "No.":
       followUpNeeded = True
       question = followupQuestion(claim, qa_pairs)
       # print("Follow Question: ", question)
@@ -225,4 +225,8 @@ def singleCoRag(claim, question):
   # print(qa_pairs)
   return qa_pairs
   
-# print(multiCoRAG("Today President Biden died."))
+# print(multiCoRAG("State lawmakers are spending taxpayer money for parking that billionaire Arthur Blank could build while paying some state employees so little they are on food stamps."))
+
+
+
+

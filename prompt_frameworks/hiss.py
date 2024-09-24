@@ -1,5 +1,6 @@
 from models.models import askModel
 from retriever.retriever import retrieve
+import re
 
 # prompt = ['''
 # Claim: "Emerson Moser, who was Crayola’s top crayon molder for almost 40 years, was colorblind."
@@ -242,35 +243,46 @@ Claim: ''', '''A fact checker will''',
  ]
  
 def hiss(claim):
+    word_seq = cleanText('{"claim":"' + claim + '"')
     cur_prompt = basePrompt[0] +  claim + " " + basePrompt[1]
     ret_text = askModel(cur_prompt,stop=['Answer me ‘yes’ or ‘no’: No.'])
-    if 'Output:' in ret_text:
+
+    if word_seq in cleanText(ret_text):
       fullPrompt = cur_prompt + ret_text
-      print(fullPrompt)
-      return ret_text.split('Output:')[1]
+      result = "{" + ret_text.split("{")[-1]
+      return result
     
-    while 'Output:' not in ret_text:
+    tries = 5  
+    while word_seq not in cleanText(ret_text):
+      tries -= 1
+      if tries == 0:
+         # print("RETARDED")
+         # return '{\n"claim": "' +  claim + '",\n"rating": "' + "RETARDED" + '",\n"factcheck": "' + "DUMB" + '"\n}'
+         return "CLAIM: " + claim
       cur_prompt += ret_text +'Answer me ‘yes’ or ‘no’: No.'
       question = ret_text.split('\nTell me')[0].split('\n')[-1]
       question = extract_question(ret_text)
-      # print('question')
+      # print('QUESTION: ')
       # print(question)
       # print('Answer:')
-      external_answer = ''.join(retrieve(question))
-      # print('external_answer')
+      external_answer = ', '.join(retrieve(question))
       # print(external_answer)
       cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 
-      ret_text = askModel(cur_prompt, 'Answer me ‘yes’ or ‘no’: No.')
+      ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
 
     fullPrompt = cur_prompt + ret_text
-    print(fullPrompt)
-    return ret_text.split('Output:')[1]
+    # print(fullPrompt)
+    result = "{" + ret_text.split("{")[-1]
+    return result
+
+def cleanText(text: str):
+   return re.sub(r'[^A-Za-z0-9]', '', text)
 
 
 def extract_question(generated):
-    generated = generated.split('Question: ')[-1].split('Answer')[0]
+    generated = generated.split('Question: ')[-1].split('\nTell me')[0]
     return generated
 
 
 
-# print(hiss("If you look at any real analysis, the Trans-Pacific Partnership is going to generate better-paying jobs that are more stable."))
+# print(hiss("Since 2009, the Ohio Republican Party has made more contacts with voters — nearly 6.6 million — than any other GOP state organization in the nation."))

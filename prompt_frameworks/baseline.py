@@ -11,7 +11,7 @@ Based on the main claim and your knowledge, You have to provide:
 - rating: choose among true, half-true and false only,
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
-  print(result)
+  # print(result)
   return result.replace("\n", "")
   
 def fewshot(claim):

@@ -138,7 +138,7 @@ Based on the main claim and the information provided, You have to provide:
 - claim: the original claim,
 - rating: choose among true, half-true and false
 - factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format''')
+please output your response in the demanded json format without any additional characters''')
 
 def keyword(claim):
     # TEXTRANK

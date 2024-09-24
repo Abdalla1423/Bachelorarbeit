@@ -1,11 +1,12 @@
 from models.models import askModel
 from retriever.retriever import retrieve
+import re
 
 # choose true for evidence supporting the claim, uncertain for neutral or conflicting evidence and false for refuting or no evidence
 
 def question_generation(claim):
   questions = askModel(f'''
-I will check things you said and ask questions.
+I will check things you said and ask questions. Follow the format and generate questions about the last claim!
 (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
 is to prevent a buildup of mucus. It's called the nasal cycle.
 To verify it,
@@ -40,11 +41,14 @@ To verify it:
   
   return questions
 
-def extract_questions(unprocessed_list):
-  # Split the string by newlines
-  lines = unprocessed_list.split('\n')
-  questions = [line.split(': ', 1)[1] if ':' in line else line.split(')', 1)[1] for line in lines]
-  return questions
+def extract_questions(text):
+    # Regular expression pattern to identify questions
+    question_pattern = re.compile(r"[A-Za-z]\)\s*I googled:\s*(.*\?)")
+
+    # Extracting all the questions
+    questions = question_pattern.findall(text)
+    
+    return questions
 
 def veracityPrediction(claim, qa_pairs):
   return askModel(f'''You are a well-informed and expert fact-checker.
@@ -55,11 +59,11 @@ Based strictly on the main claim and the question-answers provided, You have to 
 - claim: the original claim,
 - rating: choose among true, half-true and false
 - factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format''')
+please output your response in the demanded json format and no other characters''')
 
 def rarr(claim):
   generated_questions = question_generation(claim)
-  print(generated_questions)
+  # print(generated_questions)
   extracted_questions = extract_questions(generated_questions)
   qa_pairs = []
   
@@ -69,4 +73,4 @@ def rarr(claim):
   
   return veracityPrediction(claim, qa_pairs)
 
-# print(rarr("Today President Biden died."))
+# print(rarr("State lawmakers are spending taxpayer money for parking that billionaire Arthur Blank could build while paying some state employees so little they are on food stamps."))

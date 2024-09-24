@@ -41,14 +41,20 @@ matching_logic = {
     'unverifiable': ['barely-true', 'false', 'pants-fire'],
     'unverified': ['barely-true', 'false', 'pants-fire'],
     'not checkable': ['barely-true', 'false', 'pants-fire'],
+    'mostly false': ['barely-true', 'false', 'pants-fire'],
 }
 
 def evaluate(claim, pf, name):
     statement = name + " claims " + claim
     verdict_str = pf_dict[pf](statement)
-    # print(verdict_str)
-    verdict = ast.literal_eval(verdict_str)
-    print(verdict)
+    try:
+        verdict = ast.literal_eval(verdict_str)
+        print(verdict)
+    except:
+        print("SHITTY FORM")
+        print(verdict_str)
+        return 'incorrect form'
+    # print(verdict)
     veracity = verdict["rating"]
     return veracity
 
@@ -70,12 +76,13 @@ def preprocess():
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
     sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
+    # sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
     # print(sampled_data)
     
     # Create a new DataFrame with the required columns
     evaluated_data = sampled_data[['Statement', 'Determined Veracity']].copy()
     evaluated_data['Original Veracity'] = sampled_data['Veracity']
-    print(evaluated_data)
+    # print(evaluated_data)
     # Save the output to a new file
     output_file_path = f'evaluated_data_{strategy}_100.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
@@ -111,11 +118,20 @@ def determine_score_file(file_path = "20_statements/evaluated_data_PF_ENUM.BASEL
     return matches_count
 
 # print(determine_score_file())
+print(evaluate_and_determine_score(PF_ENUM.RAGAR))
 
 
 # print(determine_score_file())
 print(evaluate_and_determine_score(PF_ENUM.RARR))
 # print(evaluate_and_determine_score(PF_ENUM.RARR))
+# print(evaluate_and_determine_score(PF_ENUM.BASELINE))
+# print(evaluate_and_determine_score(PF_ENUM.KEYWORD))
+# print(evaluate_and_determine_score(PF_ENUM.RARR))
+# print(determine_score_file())
+# print(evaluate_and_determine_score(PF_ENUM.RAGAR))
+
+
+# print(evaluate_and_determine_score(PF_ENUM.BASELINE))
     
 
 # Run the evaluation for all strategies
@@ -127,11 +143,16 @@ print(evaluate_and_determine_score(PF_ENUM.RARR))
 # HISS 57 20$
 # keyword 59 6$
 
+
+# Base 59
+# Keyword 65
+# RARR 62
+
+
 # 
 # base
 # statement: 69
 # claim: 62
-
 # rarr
 # statement: 74
 # claim: 59

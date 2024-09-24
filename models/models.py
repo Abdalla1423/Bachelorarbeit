@@ -11,9 +11,9 @@ GPT_4 = ChatOpenAI(model_name="gpt-4", temperature=0, streaming=False)
 def askModel(prompt, stop=None):
   # answer = GPT_4.invoke(prompt, stop=stop)
   # return answer.content
-  return askLlama(prompt)
+  return askLlama(prompt, stop)
 
-def askLlama(prompt):
+def askLlama(prompt, stopSeq):
   openai_api_key = "ollama"
   openai_api_base = "http://localhost:11434/v1"
   client = OpenAI(
@@ -24,6 +24,7 @@ def askLlama(prompt):
       model="llama3.1",
       prompt=prompt,
       temperature=0,
+      stop=stopSeq
   )
 
   # Parse the output to extract the JSON object
