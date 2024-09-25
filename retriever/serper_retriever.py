@@ -18,11 +18,13 @@ import nltk
 # nltk.download('punkt')
 from selenium import webdriver
 from newspaper import Article
+from retriever.info import retrieved_information
 
 load_dotenv()
 SERPER_API_KEY = os.environ.get('SERPER_API_KEY')
 SERP_API_KEY = os.environ.get('SERP_API_KEY')
 url = "https://google.serper.dev/search"
+
 
 fact_checking_domains = [
     "snopes.com",
@@ -164,7 +166,9 @@ def serper_search(query):
   response = ast.literal_eval(response.text)
   
   information = []
-
+  
+  info_and_source = []
+  
   if 'organic' not in response:
     return ['No information']
     
@@ -181,6 +185,9 @@ def serper_search(query):
         #   information.append(snippet)
           # print(snippet)
         information.append(snippet)
+        info_and_source.append((snippet, domain))
+        
+  retrieved_information.append((query, info_and_source))
   
   return information
 
