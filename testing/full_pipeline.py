@@ -11,6 +11,7 @@ from enum import Enum
 import ast
 import pandas as pd
 import json
+from retriever.info import retrieved_information
 
 
 class PF_ENUM(Enum):
@@ -66,7 +67,7 @@ def preprocess():
     sampled_data = pd.read_excel(sampled_data_file)
 
     # Select only the first 5 statements
-    sampled_data = sampled_data.head(100)
+    sampled_data = sampled_data.head(5)
 
     # Extract the part of the statement after the colon
     sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':', 1)[-1].strip() if ':' in x else x)
@@ -77,6 +78,8 @@ def preprocess():
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
     sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
+    print(retrieved_information)
+    retrieved_information.clear()
      #sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
     # print(sampled_data)
     
@@ -85,7 +88,7 @@ def evaluate_strategies(sampled_data, strategy):
     evaluated_data['Original Veracity'] = sampled_data['Veracity']
     # print(evaluated_data)
     # Save the output to a new file
-    output_file_path = f'evaluated_data_{strategy}.xlsx'
+    output_file_path = f'evaluated_data_{strategy}_test_info.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
     return evaluated_data
