@@ -10,8 +10,9 @@ from prompt_frameworks.folk import folk
 from enum import Enum
 import ast
 import pandas as pd
-import json
 from retriever.info import retrieved_information
+import time
+
 
 
 class PF_ENUM(Enum):
@@ -45,58 +46,76 @@ matching_logic = {
     'mostly false': ['barely-true', 'false', 'pants-fire'],
 }
 
+NUM_OF_STATEMENTS = 100
+
 def evaluate(claim: str, pf, name = ''):
-    # cleaned_claim = claim.replace("'", '').replace('"','')
-    statement = name + " claims " + claim
+    statement = name + " says " + claim
     verdict_str = pf_dict[pf](statement)
     try:
         verdict = ast.literal_eval(verdict_str)
-        print(verdict)
     except:
         print("SHITTY FORM")
         print(verdict_str)
-        return 'incorrect form'
-    # print(verdict)
+        return 'incorrect form', ''
+    print(verdict)
     veracity = verdict["rating"]
-    return veracity
+    explanation = verdict['factcheck']
+    return veracity, explanation
 
 def preprocess():
     # Load the sampled data
-    sampled_data_file = 'politifact_datasets/sample_statements_with_all_columns_numbers.xlsx'
+    sampled_data_file = 'politifact_datasets/cleaned_statements.xlsx'
     # sampled_data_file = 'politifact_datasets/sampled_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
-
     # Select only the first 5 statements
-    sampled_data = sampled_data.head(5)
-
+    sampled_data = sampled_data.head(NUM_OF_STATEMENTS)
     # Extract the part of the statement after the colon
     sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':', 1)[-1].strip() if ':' in x else x)
+    sampled_data.rename(columns={'Veracity': 'Original Veracity'}, inplace=True)
     return sampled_data
 
 
 # Function to evaluate and save results for each strategy
 def evaluate_strategies(sampled_data, strategy):
     # Apply the evaluate function to each statement
-    sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
-    print(retrieved_information)
-    retrieved_information.clear()
-     #sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
-    # print(sampled_data)
+    # sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
+    # sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
+
+    determined_veracity = []
+    information = []
+    explanations = []
+
+    start_time = time.time()
+    # Iterate over each row in the DataFrame
+    for index, row in sampled_data.iterrows():
+        # Call the evaluate function with the required arguments and append the result to the list
+        result, exp = evaluate(row['Statement'], strategy, row['Name'])
+        information.append(retrieved_information[:])
+        explanations.append(exp)
+        determined_veracity.append(result)
+        retrieved_information.clear()
+    end_time = time.time()
+    # Assign the results back to the 'Determined Veracity' column
+    sampled_data['Determined Veracity'] = determined_veracity
+    sampled_data['Retrieved Information'] = information
+    sampled_data['Explanation'] = explanations
+    elapsed_time = end_time - start_time
     
+ 
     # Create a new DataFrame with the required columns
-    evaluated_data = sampled_data[['Statement', 'Determined Veracity']].copy()
-    evaluated_data['Original Veracity'] = sampled_data['Veracity']
-    # print(evaluated_data)
+    evaluated_data = sampled_data[['Statement', 'Name', 'Original Veracity', 'Determined Veracity','Explanation', 'Retrieved Information']].copy()
     # Save the output to a new file
-    output_file_path = f'evaluated_data_{strategy}_test_info.xlsx'
+    output_file_path = f'{strategy}_claimant_nei_content_new_ret_scrape_nonamekw.xlsx'
     evaluated_data.to_excel(output_file_path, index=False)
     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
+    print(f'Elapsed time: {elapsed_time} s')
     return evaluated_data
 
 def evaluate_and_determine_score(strategy):
     sampled_data = preprocess()
     evaluated_data = evaluate_strategies(sampled_data, strategy)
     score = determine_score(evaluated_data)
+    print(f'Score: {score}/{NUM_OF_STATEMENTS}')
     return score
 
 def determine_score(evaluated_data):
@@ -112,17 +131,22 @@ def determine_score(evaluated_data):
 
     # Count the number of matches
     matches_count = evaluated_data['Match'].sum()
-    # print(f"Number of matches: {matches_count}")
     
     return matches_count
 
-def determine_score_file(file_path = "20_statements/evaluated_data_PF_ENUM.BASELINE_FEWSHOT.xlsx"):
+def determine_score_file(file_path = "results_new_dataset/LLAMA_7B/RARR_plain_claimant_nei.xlsx"):
     df = pd.read_excel(file_path)
     matches_count = determine_score(df)
     return matches_count
 
 # print(determine_score_file())
-print(evaluate_and_determine_score(PF_ENUM.RARR))
+# evaluate_and_determine_score(PF_ENUM.BASELINE)
+evaluate_and_determine_score(PF_ENUM.KEYWORD)
+# evaluate_and_determine_score(PF_ENUM.RARR)
+# evaluate_and_determine_score(PF_ENUM.HISS)
+# evaluate_and_determine_score(PF_ENUM.RAGAR)
+
+
 
 
 # print(determine_score_file())
@@ -160,3 +184,9 @@ print(evaluate_and_determine_score(PF_ENUM.RARR))
 # rarr
 # statement: 74
 # claim: 59
+
+# rarr with nei
+# 54
+# rarr without nei
+# 52
+
