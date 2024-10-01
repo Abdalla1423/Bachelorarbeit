@@ -3,10 +3,12 @@ from retriever.retriever import retrieve
 import re
 
 # choose true for evidence supporting the claim, uncertain for neutral or conflicting evidence and false for refuting or no evidence
+# You can be sure that the person made the actual claim so focus only on the contents of the claim!
 
 def question_generation(claim):
   questions = askModel(f'''
 I will check things you said and ask questions. Follow the format and generate questions about the last claim!
+It is guaranteed that the person made the claim, so focus only on the contents of the claim!
 (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
 is to prevent a buildup of mucus. It's called the nasal cycle.
 To verify it,
@@ -53,11 +55,12 @@ def extract_questions(text):
 def veracityPrediction(claim, qa_pairs):
   return askModel(f'''You are a well-informed and expert fact-checker.
 You are provided with question-answer pairs regarding the following claim: {claim}
+It is guaranteed that the person made the claim, so focus only on the contents of the claim!
 These are the provided questions and relevant answers to the question to verify the claim:
 < {qa_pairs}>
-Based strictly on the main claim and the question-answers provided, You have to provide:
+Based on the main claim and the question-answers provided, You have to provide:
 - claim: the original claim,
-- rating: choose among true, false and NEI(not enough information),
+- rating: choose between true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
 
@@ -68,9 +71,12 @@ def rarr(claim):
   qa_pairs = []
   
   for question in extracted_questions:
+    # print(question)
     answer = retrieve(question)
+    # print(answer)
     qa_pairs.append((question, answer))
-  
-  return veracityPrediction(claim, qa_pairs)
+  prediction = veracityPrediction(claim, qa_pairs)
+  # print(prediction)
+  return prediction
 
-# print(rarr("State lawmakers are spending taxpayer money for parking that billionaire Arthur Blank could build while paying some state employees so little they are on food stamps."))
+# rarr("James Dobson says John McCain said publicly that Hillary Clinton would make a good president.")

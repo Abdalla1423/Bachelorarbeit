@@ -50,16 +50,19 @@ def initialQuestion(claim):
   3: You should not appeal to video
   evidence nor ask for calculations or
   methodology.
-  3: You must not ask for sources of data.
+  4: You must not ask if the claim was actually
+  made by the person. It is guaranteed that the 
+  person made the claim.
+  5: You must not ask for sources of data.
   You are only concerned with the questions.
-  4: You are not allowed to use the word
+  6: You are not allowed to use the word
   "claim". Instead, if you want to refer to
   the claim, you should point out the exact
   issue in the claim that you are phrasing
   your questions around.
-  5: You must never ask for calculations or
+  7: You must never ask for calculations or
   methodology.
-  6: Create a pointed factcheck question
+  8: Create a pointed factcheck question
   for the claim.
   Return only a python list containing the
   question and no other text.
@@ -77,7 +80,8 @@ Country: United States of America
 Your task is to ask a followup question
 to regarding the claim specifically based
 on the question answer pairs.
-Never ask for sources or publishing.
+Never ask for sources or publishing. 
+It is guaranteed that the person made the claim.
 The follow-up question must be
 descriptive, specific to the claim, and
 very short, brief, and concise.
@@ -117,12 +121,13 @@ or else answer, "No"''')
 def veracityPrediction(claim, qa_pairs):
   return askModel(f'''You are a well-informed and expert fact-checker.
 You are provided with question-answer pairs regarding the following claim: {claim}
+It is guaranteed that the person made the claim, so focus only on the contents of the claim!
 These are the provided questions and relevant answers to the question to verify the claim:
 < {qa_pairs}>
-Based strictly on the main claim and the question-answers provided (ignoring questions regarding image if they
+Based on the main claim and the question-answers provided (ignoring questions regarding image if they
 dont have an answer), You have to provide:
 - claim: the original claim,
-- rating: choose among true, half-true and false,
+- rating: choose between true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
   

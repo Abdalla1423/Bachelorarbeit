@@ -5,10 +5,11 @@ from models.models import askLlama
 def base(claim):
   result = askModel(f'''You are a well-informed and expert fact-checker.
 You are provided with the following claim: {claim}
+It is guaranteed that the person made the claim, so focus only on the contents of the claim!
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
-- rating: choose between true and false,
+- rating: choose between true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
   # print(result)
