@@ -118,7 +118,7 @@ def _get_relevant_documents(
         logger.info("Searching for relevant urls...")
         payload = json.dumps({
         "q": query,
-        "num": 10,
+        "num": 5,
          })
         headers = {
             'X-API-KEY': SERPER_API_KEY,
@@ -163,13 +163,16 @@ def _get_relevant_documents(
         # TODO: make this async
         logger.info("Grabbing most relevant splits from urls...")
         docs = []
-        docs.extend(vectorstore.similarity_search(query))
+        docs.extend(vectorstore.similarity_search(query, k = 2))
 
         # Get unique docs
         unique_documents_dict = {
             (doc.page_content, tuple(sorted(doc.metadata.items()))): doc for doc in docs
         }
         unique_documents = list(unique_documents_dict.values())
-        return unique_documents
+        page_contents = [doc.page_content for doc in unique_documents]
+        return page_contents
 
-print(_get_relevant_documents('President Biden is dead'))
+
+
+# print(_get_relevant_documents('Who are Havel-Hakimi algorithm named after?'))
