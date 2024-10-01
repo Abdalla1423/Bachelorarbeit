@@ -15,9 +15,11 @@ import ast
 from serpapi import GoogleSearch
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-# nltk.download('punkt')
 from selenium import webdriver
 from newspaper import Article
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
 from retriever.info import retrieved_information
 
 load_dotenv()
@@ -29,6 +31,7 @@ url = "https://google.serper.dev/search"
 fact_checking_domains = [
     "snopes.com",
     "politifact.com",
+    "politifact",
     "factcheck.org",
     "truthorfiction.com",
     "fullfact.org",
@@ -117,7 +120,7 @@ def scrape_website_content(url):
       return content
     except requests.exceptions.RequestException as e:
       try:
-        print("Trying newspaper...")
+        # print("Trying newspaper...")
         article = Article(url=url, language='en')
         article.download()
         article.parse()
@@ -137,7 +140,10 @@ def rank_sentences(text, query, top_n = 3):
     vectors = vectorizer.toarray()
 
     # Calculate cosine similarity between the query vector and all sentence vectors
-    cosine_similarities = cosine_similarity(vectors[0:1], vectors[1:]).flatten()
+    try:
+      cosine_similarities = cosine_similarity(vectors[0:1], vectors[1:]).flatten()
+    except:
+       return None
 
     # Get the top_n most relevant sentences
     relevant_indices = cosine_similarities.argsort()[-top_n:][::-1]
@@ -148,21 +154,25 @@ def extract_and_rank(url, query):
   content = scrape_website_content(url)
   if content:
     ranked_sentences = rank_sentences(content, query)
-    return "".join([sentence for sentence in ranked_sentences])
+    if ranked_sentences:
+      return "".join([sentence for sentence in ranked_sentences])
+    else:
+       return None
   else:
     return None
 
 def serper_search(query):
   payload = json.dumps({
     "q": query,
-    "num": 10,
+    "num": 5,
   })
   headers = {
     'X-API-KEY': SERPER_API_KEY,
     'Content-Type': 'application/json'
   }
 
-  response = requests.request("POST", url, headers=headers, data=payload)
+  response = requests.request("POST", url, headers=headers, data=payload, timeout=30)
+  
   response = ast.literal_eval(response.text)
   
   information = []
@@ -178,14 +188,16 @@ def serper_search(query):
       domain = item.get('link', '')
       # print("DOMAIN", domain)
       if not any(restricted_domain in domain for restricted_domain in restricted_domains):
-        # content = extract_and_rank(domain, query)
-        # if content:
-        #   information.append(content)
-        # elif snippet:
+        content = extract_and_rank(domain, query)
+        if content:
+          information.append(content)
+          info_and_source.append((content, domain))
+        elif snippet:
+          information.append(snippet)
+          info_and_source.append((snippet, domain))
+        # if snippet:
         #   information.append(snippet)
-          # print(snippet)
-        information.append(snippet)
-        info_and_source.append((snippet, domain))
+        #   info_and_source.append((snippet, domain))
         
   retrieved_information.append((query, info_and_source))
   
