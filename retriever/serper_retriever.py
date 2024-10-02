@@ -112,23 +112,29 @@ def scrape_website_content(url):
       
       if 'text/html' in content_type or 'application/xhtml+xml' in content_type:
           # Handle HTML or XML content with BeautifulSoup
-          soup = BeautifulSoup(response.content, 'html.parser')
+          try:
+            soup = BeautifulSoup(response.content, 'html.parser')
 
-          # Extract text from paragraphs
-          paragraphs = soup.find_all('p')
-          content = "\n".join([para.get_text() for para in paragraphs])
+            # Extract text from paragraphs
+            paragraphs = soup.find_all('p')
+            content = "\n".join([para.get_text() for para in paragraphs])
 
-          return content
+            return content
+          except:
+            return None
 
       elif 'application/pdf' in content_type:
           # Handle PDF content with PyPDF2
-          pdf_content = BytesIO(response.content)
-          reader = PdfReader(pdf_content)
-          text = ""
-          for page in reader.pages:
-              text += page.extract_text()
+          try:
+            pdf_content = BytesIO(response.content)
+            reader = PdfReader(pdf_content)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text()
 
-          return text
+            return text
+          except:
+            return None
 
       else:
           # Reject any other content type
