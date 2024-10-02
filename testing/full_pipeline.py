@@ -46,7 +46,7 @@ matching_logic = {
     'mostly false': ['barely-true', 'false', 'pants-fire'],
 }
 
-NUM_OF_STATEMENTS = 100
+NUM_OF_STATEMENTS = 49
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -57,14 +57,14 @@ def evaluate(claim: str, pf, name = ''):
         print("SHITTY FORM")
         print(verdict_str)
         return 'incorrect form', ''
-    print(verdict)
+    print(verdict_str)
     veracity = verdict["rating"]
     explanation = verdict['factcheck']
     return veracity, explanation
 
 def preprocess():
     # Load the sampled data
-    sampled_data_file = 'politifact_datasets/cleaned_statements.xlsx'
+    sampled_data_file = 'politifact_datasets/cleaned_statements_ragar.xlsx'
     # sampled_data_file = 'politifact_datasets/sampled_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
     # Select only the first 5 statements
@@ -94,6 +94,7 @@ def evaluate_strategies(sampled_data, strategy):
         explanations.append(exp)
         determined_veracity.append(result)
         retrieved_information.clear()
+        time.sleep(5)
     end_time = time.time()
     # Assign the results back to the 'Determined Veracity' column
     sampled_data['Determined Veracity'] = determined_veracity
@@ -138,13 +139,13 @@ def determine_score_file(file_path = "results_new_dataset/LLAMA_7B/RARR_plain_cl
     df = pd.read_excel(file_path)
     matches_count = determine_score(df)
     return matches_count
-
+#Hiss incorrect form needs correction
 # print(determine_score_file())
 # evaluate_and_determine_score(PF_ENUM.BASELINE)
-evaluate_and_determine_score(PF_ENUM.KEYWORD)
-# evaluate_and_determine_score(PF_ENUM.RARR)
+# evaluate_and_determine_score(PF_ENUM.KEYWORD)
+ #evaluate_and_determine_score(PF_ENUM.RARR)
 # evaluate_and_determine_score(PF_ENUM.HISS)
-# evaluate_and_determine_score(PF_ENUM.RAGAR)
+evaluate_and_determine_score(PF_ENUM.RAGAR)
 
 
 
