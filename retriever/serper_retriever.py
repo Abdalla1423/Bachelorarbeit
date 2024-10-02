@@ -17,6 +17,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from selenium import webdriver
 from newspaper import Article
+from PyPDF2 import PdfReader
+from io import BytesIO
 nltk.download('punkt')
 nltk.download('punkt_tab')
 
@@ -101,23 +103,38 @@ def scrape_website_content(url):
         "Accept-Language": "en-US,en;q=0.9",
         "Referer": "https://www.google.com",
       }
-      response = requests.get(url, headers=headers, timeout=5)
+      response = requests.get(url, headers=headers, timeout=10)
       response.raise_for_status()  # Check if the request was successful
-      soup = BeautifulSoup(response.content, 'html.parser')
       
-      # options = webdriver.ChromeOptions()
-      # options.add_argument("--headless")
-      # driver = webdriver.Chrome(options=options)
+      # Check if the content type is PDF
+      # Check the content type
+      content_type = response.headers.get('Content-Type', '').lower()
+      
+      if 'text/html' in content_type or 'application/xhtml+xml' in content_type:
+          # Handle HTML or XML content with BeautifulSoup
+          soup = BeautifulSoup(response.content, 'html.parser')
 
-      # driver.get(url)
-      # content = driver.page_source
-      # soup = BeautifulSoup(content, "html.parser")   
+          # Extract text from paragraphs
+          paragraphs = soup.find_all('p')
+          content = "\n".join([para.get_text() for para in paragraphs])
 
-      # Extract text from paragraphs
-      paragraphs = soup.find_all('p')
-      content = "\n".join([para.get_text() for para in paragraphs])
+          return content
 
-      return content
+      elif 'application/pdf' in content_type:
+          # Handle PDF content with PyPDF2
+          pdf_content = BytesIO(response.content)
+          reader = PdfReader(pdf_content)
+          text = ""
+          for page in reader.pages:
+              text += page.extract_text()
+
+          return text
+
+      else:
+          # Reject any other content type
+          print(f"Unsupported content type: {content_type}. Only HTML, XML, and PDF are accepted.")
+          return None
+
     except requests.exceptions.RequestException as e:
       try:
         # print("Trying newspaper...")
@@ -155,7 +172,8 @@ def extract_and_rank(url, query):
   if content:
     ranked_sentences = rank_sentences(content, query)
     if ranked_sentences:
-      return "".join([sentence for sentence in ranked_sentences])
+      result = "".join([sentence for sentence in ranked_sentences])
+      return result
     else:
        return None
   else:
@@ -236,3 +254,6 @@ def google(question):
 
   
 # print(extract_and_rank("https://www.nbc4i.com/news/politics/more-than-37000-ohioans-will-have-student-debt-canceled-this-summer/", 'student default',))
+# 'https://www.in.gov/ctb/files/appendix1.pdf'
+
+# print(extract_and_rank("https://www.in.gov/ctb/files/appendix1.pdf", "Did the gang members that Hahn helped commit more crimes, specifically rape and murder?"))
