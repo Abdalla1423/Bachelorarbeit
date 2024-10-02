@@ -4,6 +4,7 @@ from models.models import askModel
 from retriever.retriever import retrieve
 import ast
 import re
+import time
 
 def initialQuestions(claim):
   return askModel(f'''
@@ -65,7 +66,7 @@ def initialQuestion(claim):
   8: Create a pointed factcheck question
   for the claim.
   Return only a python list containing the
-  question and no other text.
+  question.
       ''')
 
 def followupQuestion(claim, qa_pairs):
@@ -188,11 +189,12 @@ def multiCoRAG(claim):
   # questions_list = questions.split('\n')
   # questions_list = [question[2:] for question in questions_list]
   # print(questions_list)
-  questions_list = extract_questions(questions.replace('"', ""))
+  questions_list = ast.literal_eval(questions)
   qa_pairs = []
   for question in questions_list:
     qa_pairs += singleCoRag(claim, question)
   # print("total question_answer pairs: ", qa_pairs)
+  time.sleep(2)
   prediction = veracityPrediction(claim, qa_pairs)
   # verificationQuestions = verificationQuestion(claim, prediction)
   # corrected_questions_list = ast.literal_eval(verificationQuestions)
@@ -218,10 +220,12 @@ def singleCoRag(claim, question):
     answer = retrieve(question)
     # print("answer: ", answer)
     qa_pairs.append((question, answer))
+    time.sleep(2)
     followUpNeededAnswer = followupCheck(claim, qa_pairs)
     # print("Follow up needed: ", followUpNeededAnswer)
     if followUpNeededAnswer == "No" or followUpNeededAnswer == "No.":
       followUpNeeded = True
+      time.sleep(2)
       question = followupQuestion(claim, qa_pairs)
       # print("Follow Question: ", question)
     else:
@@ -250,6 +254,4 @@ def extract_questions(questions):
   # Print the result
   return output_list
 
-
-
-
+# print(multiCoRAG("Eugene McKenna says Rhode Island already gets more revenue per capita from gambling than any other state in the country."))
