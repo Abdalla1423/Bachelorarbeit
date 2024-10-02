@@ -110,7 +110,7 @@ def scrape_website_content(url):
       # Check the content type
       content_type = response.headers.get('Content-Type', '').lower()
       
-      if 'text/html' in content_type or 'application/xhtml+xml' in content_type:
+      if 'text/html' in content_type or 'application/xhtml+xml' in content_type or 'text/xml' in content_type:
           # Handle HTML or XML content with BeautifulSoup
           try:
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -153,7 +153,7 @@ def scrape_website_content(url):
       return None
 
 # Function to rank sentences by similarity to the query using TF-IDF and cosine similarity
-def rank_sentences(text, query, top_n = 3):
+def rank_sentences(text, query, top_n = 2):
     sentences = nltk.sent_tokenize(text)
     # Combine the query and sentences to create a corpus
     corpus = [query] + sentences
