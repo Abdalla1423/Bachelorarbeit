@@ -240,22 +240,16 @@ def singleCoRag(claim, question):
 
 def extract_questions(questions):
 
-  # Step 1: Replace the single quotes at the start of the list or after commas with double quotes
   fixed_string = re.sub(r"(?<=\[)'|(?<=, )'", '"', questions)
 
-  # Step 2: Replace the single quotes before commas with double quotes
   fixed_string = re.sub(r"'(?=,)", '"', fixed_string)
 
-  # Step 3: Replace the final single quote before the closing bracket with a double quote
   fixed_string = re.sub(r"'(?=])", '"', fixed_string)
 
-  # Step 4: Extract list
   match = re.search(r"\[(.*?)\]", fixed_string)
 
-  # Convert the fixed string to a list using ast.literal_eval
   output_list = ast.literal_eval(f"[{match.group(1)}]")
 
-  # Print the result
   return output_list
 
 # print(multiCoRAG("Back to Basics says Perry pushed for a law that lets insurance companies raise homeowners’ rates without having to justify the increase."))
