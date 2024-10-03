@@ -4,9 +4,6 @@ from bs4 import BeautifulSoup
 import requests
 from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
-import re
-import time
 import requests
 import json
 import os
@@ -15,7 +12,6 @@ import ast
 from serpapi import GoogleSearch
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-from selenium import webdriver
 from newspaper import Article
 from PyPDF2 import PdfReader
 from io import BytesIO
@@ -256,10 +252,3 @@ def google(question):
 
     return answer
   
-  # information =  [item.get('snippet', '') for item in response['organic']]  # Extract snippets from search results
-
-  
-# print(extract_and_rank("https://www.nbc4i.com/news/politics/more-than-37000-ohioans-will-have-student-debt-canceled-this-summer/", 'student default',))
-# 'https://www.in.gov/ctb/files/appendix1.pdf'
-
-# print(extract_and_rank("https://www.in.gov/ctb/files/appendix1.pdf", "Did the gang members that Hahn helped commit more crimes, specifically rape and murder?"))
