@@ -46,7 +46,7 @@ matching_logic = {
     'mostly false': ['barely-true', 'false', 'pants-fire'],
 }
 
-NUM_OF_STATEMENTS = 49
+NUM_OF_STATEMENTS = 100
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -64,7 +64,7 @@ def evaluate(claim: str, pf, name = ''):
 
 def preprocess():
     # Load the sampled data
-    sampled_data_file = 'politifact_datasets/cleaned_statements_ragar.xlsx'
+    sampled_data_file = 'politifact_datasets/cleaned_statements.xlsx'
     # sampled_data_file = 'politifact_datasets/sampled_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
     # Select only the first 5 statements
@@ -76,41 +76,108 @@ def preprocess():
 
 
 # Function to evaluate and save results for each strategy
-def evaluate_strategies(sampled_data, strategy):
-    # Apply the evaluate function to each statement
-    # sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
-    # sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
+# def evaluate_strategies(sampled_data, strategy):
+#     # Apply the evaluate function to each statement
+#     # sampled_data['Determined Veracity'] = sampled_data.apply(lambda row: evaluate(row['Statement'], strategy, row['Name']), axis=1)
+#     # sampled_data['Determined Veracity'] = sampled_data['Statement'].apply(lambda x: evaluate(x, strategy))
 
+#     determined_veracity = []
+#     information = []
+#     explanations = []
+
+#     start_time = time.time()
+#     # Iterate over each row in the DataFrame
+#     for index, row in sampled_data.iterrows():
+#         # Call the evaluate function with the required arguments and append the result to the list
+#         result, exp = evaluate(row['Statement'], strategy, row['Name'])
+#         information.append(retrieved_information[:])
+#         explanations.append(exp)
+#         determined_veracity.append(result)
+#         retrieved_information.clear()
+#         time.sleep(5)
+#     end_time = time.time()
+#     # Assign the results back to the 'Determined Veracity' column
+#     sampled_data['Determined Veracity'] = determined_veracity
+#     sampled_data['Retrieved Information'] = information
+#     sampled_data['Explanation'] = explanations
+#     elapsed_time = end_time - start_time
+    
+ 
+#     # Create a new DataFrame with the required columns
+#     evaluated_data = sampled_data[['Statement', 'Name', 'Original Veracity', 'Determined Veracity','Explanation', 'Retrieved Information']].copy()
+#     # Save the output to a new file
+#     output_file_path = f'{strategy}_claimant_nei_content_new_ret_scrape_nonamekw.xlsx'
+#     evaluated_data.to_excel(output_file_path, index=False)
+#     print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
+#     print(f'Elapsed time: {elapsed_time} s')
+#     return evaluated_data
+
+# Function to evaluate and save results for each strategy
+
+import os
+from openpyxl import load_workbook
+
+import os
+
+# Function to evaluate and save results for each strategy iteratively
+def evaluate_strategies(sampled_data, strategy):
+    # Define the output file path
+    output_file_path = f'{strategy}.xlsx'
+    
+    # Check if the file already exists
+    if os.path.exists(output_file_path):
+        # Load the existing data
+        evaluated_data = pd.read_excel(output_file_path)
+    else:
+        # Create an empty DataFrame if file doesn't exist
+        evaluated_data = pd.DataFrame(columns=['Statement', 'Name', 'Original Veracity', 'Determined Veracity', 'Explanation', 'Retrieved Information'])
+    
     determined_veracity = []
-    information = []
     explanations = []
 
     start_time = time.time()
+    
     # Iterate over each row in the DataFrame
     for index, row in sampled_data.iterrows():
+        # Check if the current statement has already been processed (to avoid duplicates)
+        if not evaluated_data[evaluated_data['Statement'] == row['Statement']].empty:
+            print(f"Statement {row['Statement']} already processed. Skipping.")
+            continue
+        
         # Call the evaluate function with the required arguments and append the result to the list
         result, exp = evaluate(row['Statement'], strategy, row['Name'])
-        information.append(retrieved_information[:])
         explanations.append(exp)
         determined_veracity.append(result)
+        
+        
+        # Create a temporary DataFrame for this iteration
+        temp_df = pd.DataFrame({
+            'Statement': [row['Statement']],
+            'Name': [row['Name']],
+            'Original Veracity': [row['Original Veracity']],
+            'Determined Veracity': [result],
+            'Explanation': [exp],
+            'Retrieved Information': [retrieved_information[:]]
+        })
         retrieved_information.clear()
+        
+        # Append the new row to the evaluated_data DataFrame
+        evaluated_data = pd.concat([evaluated_data, temp_df], ignore_index=True)
+        
+        # Save the updated DataFrame to the output file after each iteration
+        evaluated_data.to_excel(output_file_path, index=False)
+        print(f'Iteration {index+1}: Results appended and saved for statement "{row["Statement"]}"')
+
+        # Pause to avoid overwhelming the server or hitting rate limits
         time.sleep(5)
+
     end_time = time.time()
-    # Assign the results back to the 'Determined Veracity' column
-    sampled_data['Determined Veracity'] = determined_veracity
-    sampled_data['Retrieved Information'] = information
-    sampled_data['Explanation'] = explanations
     elapsed_time = end_time - start_time
     
- 
-    # Create a new DataFrame with the required columns
-    evaluated_data = sampled_data[['Statement', 'Name', 'Original Veracity', 'Determined Veracity','Explanation', 'Retrieved Information']].copy()
-    # Save the output to a new file
-    output_file_path = f'{strategy}_claimant_nei_content_new_ret_scrape_nonamekw.xlsx'
-    evaluated_data.to_excel(output_file_path, index=False)
-    print(f'Results saved for strategy "{strategy}" in file: {output_file_path}')
-    print(f'Elapsed time: {elapsed_time} s')
+    print(f'All statements processed for strategy "{strategy}". Elapsed time: {elapsed_time} s')
     return evaluated_data
+
+
 
 def evaluate_and_determine_score(strategy):
     sampled_data = preprocess()
@@ -143,9 +210,10 @@ def determine_score_file(file_path = "results_new_dataset/LLAMA_7B/RARR_plain_cl
 # print(determine_score_file())
 # evaluate_and_determine_score(PF_ENUM.BASELINE)
 # evaluate_and_determine_score(PF_ENUM.KEYWORD)
- #evaluate_and_determine_score(PF_ENUM.RARR)
-# evaluate_and_determine_score(PF_ENUM.HISS)
+# evaluate_and_determine_score(PF_ENUM.RARR)
+
 evaluate_and_determine_score(PF_ENUM.RAGAR)
+evaluate_and_determine_score(PF_ENUM.HISS)
 
 
 
