@@ -65,8 +65,8 @@ def initialQuestion(claim):
   methodology.
   8: Create a pointed factcheck question
   for the claim.
-  Return only a python list containing the
-  question.
+  Return only a python list containing 
+  the question and no other characters.
       ''')
 
 def followupQuestion(claim, qa_pairs):
@@ -189,6 +189,7 @@ def multiCoRAG(claim):
   # questions_list = questions.split('\n')
   # questions_list = [question[2:] for question in questions_list]
   # print(questions_list)
+  # questions_list = extract_questions(questions.replace('"', ""))
   questions_list = ast.literal_eval(questions)
   qa_pairs = []
   for question in questions_list:
@@ -220,12 +221,12 @@ def singleCoRag(claim, question):
     answer = retrieve(question)
     # print("answer: ", answer)
     qa_pairs.append((question, answer))
-    time.sleep(2)
+    time.sleep(5)
     followUpNeededAnswer = followupCheck(claim, qa_pairs)
     # print("Follow up needed: ", followUpNeededAnswer)
     if followUpNeededAnswer == "No" or followUpNeededAnswer == "No.":
       followUpNeeded = True
-      time.sleep(2)
+      time.sleep(5)
       question = followupQuestion(claim, qa_pairs)
       # print("Follow Question: ", question)
     else:
@@ -248,10 +249,13 @@ def extract_questions(questions):
   # Step 3: Replace the final single quote before the closing bracket with a double quote
   fixed_string = re.sub(r"'(?=])", '"', fixed_string)
 
+  # Step 4: Extract list
+  match = re.search(r"\[(.*?)\]", fixed_string)
+
   # Convert the fixed string to a list using ast.literal_eval
-  output_list = ast.literal_eval(fixed_string)
+  output_list = ast.literal_eval(f"[{match.group(1)}]")
 
   # Print the result
   return output_list
 
-# print(multiCoRAG("Eugene McKenna says Rhode Island already gets more revenue per capita from gambling than any other state in the country."))
+# print(multiCoRAG("Back to Basics says Perry pushed for a law that lets insurance companies raise homeowners’ rates without having to justify the increase."))
