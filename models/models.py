@@ -1,4 +1,3 @@
-#export PYTHONPATH=$PYTHONPATH:/Users/abdallaeltayeb/Desktop/Bachelorarbeit
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -27,5 +26,4 @@ def askLlama(prompt, stopSeq):
       stop=stopSeq
   )
 
-  # Parse the output to extract the JSON object
   return completion.choices[0].text
