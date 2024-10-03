@@ -74,6 +74,6 @@ def process_files_to_excel(strategies, model):
     print(f"Results successfully written to {output_file}")
 
 strategies = ["BASELINE", "KEYWORD", "RARR","HISS", "RAGAR"]
-model = "Llama_7B"
+model = "Llama_8B"
 
 process_files_to_excel(strategies, model)
