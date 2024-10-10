@@ -32,7 +32,7 @@ pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss,
            PF_ENUM.KEYWORD: keyword, PF_ENUM.DIRECT: direct,
            PF_ENUM.FOLK_COT: folk_cot, PF_ENUM.FOLK: folk}
 
-NUM_OF_STATEMENTS = 100
+NUM_OF_STATEMENTS = 1
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -59,7 +59,8 @@ def preprocess():
 
 
 # Function to evaluate and save results for each strategy iteratively
-def evaluate_strategies(sampled_data, strategy):
+def evaluate_strategies( strategy):
+    sampled_data = preprocess()
     output_file_path = f'{strategy}.xlsx'
     
     if os.path.exists(output_file_path):
