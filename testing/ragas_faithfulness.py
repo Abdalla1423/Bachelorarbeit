@@ -1,8 +1,12 @@
 from datasets import Dataset 
 from ragas.metrics import FaithulnesswithHHEM
+from ragas.metrics import faithfulness
 from ragas import evaluate
 import os
+import pandas as pd
 from dotenv import load_dotenv
+import ast
+
 load_dotenv()
 
 os.environ["LANGCHAIN_TRACING_V2"] = os.environ.get("LANGCHAIN_TRACING_V2")
@@ -10,70 +14,69 @@ os.environ["LANGCHAIN_ENDPOINT"] = os.environ.get("LANGCHAIN_ENDPOINT")
 os.environ["LANGCHAIN_API_KEY"] = os.environ.get("LANGCHAIN_API_KEY")
 os.environ["LANGCHAIN_PROJECT"] = os.environ.get("LANGCHAIN_PROJECT")
 
-q = [' Is it true that More than half of all black children live in single-parent households, a number that has doubled — doubled — since we were children.']
-a = ['The claim that Barack Obama stated that more than half of all black children live in single-parent households, and that this number has doubled since his childhood, is true. This statement was made by Obama in a 2008 Father’s Day speech, where he emphasized the importance of fathers in the family and the impact of single parenthood on the African American community. He noted that the number of black children living in single-parent households had doubled since his own childhood, highlighting the increasing prevalence of this family structure within the black community. Therefore, the claim is accurate and reflects Obamas statements on this issue.']
-con = [  
-        [
-            "We know that more than half of all black children live in single-parent households, a number that has doubled — doubled — since we were children ...",
-            "We know that more than half of all black children live in single-parent households, a number that has doubled—doubled—since we were children… And the foundations of our community are weaker because of it.” –Barack Obama. When it comes to race, one of the most gifted writers on the contemporary American scene is Ta-Nehisi Coates. In a 2008 Father’s Day speech, then-Senator Obama observed, correctly, that fathers are 'critical' to the family, and that the foundations of the African American community are more fragile than they might otherwise be because many black children are growing up in a home without their own father. On this subject, Barack Obama, not Ta-Nehisi Coates, gets it right.",
-            "Mr. Obama noted that 'more than half of all black children live in single-parent households,' a number that he said had doubled since his own childhood. Speaking in Texas in February, Mr. Obama told the mostly black audience to take responsibility for the education and nutrition of their children, and lectured them for feeding their children 'cold Popeyes' for breakfast. 'I say this knowing that I have been an imperfect father,' he said, 'Knowing that I have made mistakes and I’ll continue to make more, wishing that I could be home for my girls and my wife more than I am right now.' The Obama campaign added the speech to Mr. Obama’s schedule on Saturday, when he returned to Chicago after a campaign swing through Pennsylvania and Ohio.",
-            "We know that more than half of all black children live in single-parent households, a number that has doubled-doubled-since we were children… And the foundations of our community are weaker because of it.” –Barack Obama. When it comes to race, one of the most gifted writers on the contemporary American scene is Ta-Nehisi Coates. In a 2008 Father’s Day speech, then-Senator Obama observed, correctly, that fathers are 'critical' to the family, and that the foundations of the African American community are more fragile than they might otherwise be because many black children are growing up in a home without their own father. The bottom line: Obama was right to say that African American dads matter; clearly, blacks boys and girls are more likely to flourish when they are raised in a home with their biological parents."
-        ]
-]
+NUM_OF_STATEMENTS = 100
 
-# faithfulness_with_hhem = FaithulnesswithHHEM()
-# data_samples = {
-#     'question': q,
-#     'answer': a,
-#     'contexts' : con,
-# }
-# dataset = Dataset.from_dict(data_samples)
-# score = evaluate(dataset,metrics=[faithfulness_with_hhem])
-# df = score.to_pandas()
-# df.to_excel('faithfulnes.xlsx')
+faithfulness_with_hhem = FaithulnesswithHHEM()
 
-# from datasets import Dataset 
-# from ragas.metrics import faithfulness
-# from ragas import evaluate
-
-# data_samples = {
-#     'question': ['When was the first super bowl?', 'Who won the most super bowls?'],
-#     'answer': ['The first superbowl was held on Jan 15, 1967', 'The most super bowls have been won by The New England Patriots'],
-#     'contexts' : [['The First AFL–NFL World Championship Game was an American football game played on January 15, 1967, at the Los Angeles Memorial Coliseum in Los Angeles,'], 
-#     ['The Green Bay Packers...Green Bay, Wisconsin.','The Packers compete...Football Conference']],
-# }
-# dataset = Dataset.from_dict(data_samples)
-# score = evaluate(dataset,metrics=[faithfulness])
-# df = score.to_pandas()
-# df.to_excel('faithfulnes.xlsx')
-
-from langchain_ollama import ChatOllama
-from langchain_ollama import OllamaEmbeddings
-from ragas.metrics import faithfulness
-from ragas import evaluate
-from datasets import Dataset 
-from langchain_openai import ChatOpenAI
+def clean_context(context):
+    return [info[0] for _, infos in context for info in infos]
+   
+def preprocess(strategy, model):
+    file_path = f'results_new_dataset/{model}/{strategy}_{model}.xlsx'
+    sampled_data = pd.read_excel(file_path)
+    sampled_data = sampled_data.head(NUM_OF_STATEMENTS)
+    sampled_data['Statement'] = sampled_data.apply(lambda row: f'Is this statement made by {row["Name"]} true: {row["Statement"]}', axis=1)
+    sampled_data['Retrieved Information'] = sampled_data['Retrieved Information'].apply(lambda context: clean_context(ast.literal_eval(context)))
+    return sampled_data
 
 
+def evaluate_strategies(strategy, model):
+    sampled_data = preprocess(strategy, model)
+    output_file_path = f'{strategy}_Faithfulness.xlsx'
+    
+    if os.path.exists(output_file_path):
+        evaluated_data = pd.read_excel(output_file_path)
+    else:
+        evaluated_data = pd.DataFrame(columns=['Statement', 'Name', 'Explanation', 'Retrieved Information', 'Faithfulness'])
 
-langchain_llm = ChatOpenAI(
-    model="gpt-4",
-    temperature=0,
-)
+    
+    for index, row in sampled_data.iterrows():
+        # Check if the current statement has already been processed (to avoid duplicates)
+        if not evaluated_data[evaluated_data['Statement'] == row['Statement']].empty:
+            print(f"Statement {row['Statement']} already processed. Skipping.")
+            continue
+        
+        data_samples = {
+            'question': [row['Statement']],
+            'answer': [row['Explanation']],
+            'contexts' : [row['Retrieved Information']],
+        }
+        
+        dataset = Dataset.from_dict(data_samples)       
+        faithfulness_score = 0
+        if row['Retrieved Information']:
+            score = evaluate(dataset,metrics=[faithfulness])
+            res_df = score.to_pandas()
+            faithfulness_score = res_df['faithfulness']
+        else:
+            print("No retrieved information!")
+        
+        temp_df = pd.DataFrame({
+            'Statement': [row['Statement']],
+            'Name': [row['Name']],
+            'Explanation': [row['Explanation']],
+            'Retrieved Information': [row['Retrieved Information']],
+            'Faithfulness': faithfulness_score
+        })
+        
+        evaluated_data = pd.concat([evaluated_data, temp_df], ignore_index=True)
+        
+        evaluated_data.to_excel(output_file_path, index=False)
+        print(f'Iteration {index+1}: Results appended and saved for statement "{row["Statement"]}"')
 
-langchain_embeddings = OllamaEmbeddings(
-    model="llama3.1"
-)
+    
+    print(f'All statements processed for strategy "{strategy}"')
+    return evaluated_data
 
-
-data_samples = {
-    'question': q,
-    'answer': a,
-    'contexts' : con,
-}
-dataset = Dataset.from_dict(data_samples)
-
-results = evaluate(dataset, metrics=[faithfulness], llm=langchain_llm, embeddings=langchain_embeddings)
-df = results.to_pandas()
-df.to_excel('faithfulnes.xlsx')
+evaluate_strategies("RARR", "GPT_4")
 
