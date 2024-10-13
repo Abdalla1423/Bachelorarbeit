@@ -20,7 +20,7 @@ def askLlama(prompt, stopSeq):
       base_url=openai_api_base,
   )
   completion = client.chat.completions.create(
-      model="meta-llama/Meta-Llama-3.1-80B-Instruct",
+      model="meta-llama/Meta-Llama-3.1-70B-Instruct",
       messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": prompt},
