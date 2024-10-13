@@ -13,17 +13,22 @@ def askModel(prompt, stop=None):
   return askLlama(prompt, stop)
 
 def askLlama(prompt, stopSeq):
-  openai_api_key = "ollama"
-  openai_api_base = "http://localhost:11434/v1"
+  openai_api_key = "EMPTY"
+  openai_api_base = "http://localhost:5000/v1"
   client = OpenAI(
       api_key=openai_api_key,
       base_url=openai_api_base,
   )
-  completion = client.completions.create(
-      model="llama3.1",
-      prompt=prompt,
+  completion = client.chat.completions.create(
+      model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+      messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": prompt},
+    ],
       temperature=0,
       stop=stopSeq
   )
 
-  return completion.choices[0].text
+  return completion.choices[0].message.content
+
+# print(askModel("Tell me about yourself"))
