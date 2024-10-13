@@ -32,7 +32,7 @@ pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss,
            PF_ENUM.KEYWORD: keyword, PF_ENUM.DIRECT: direct,
            PF_ENUM.FOLK_COT: folk_cot, PF_ENUM.FOLK: folk}
 
-NUM_OF_STATEMENTS = 1
+NUM_OF_STATEMENTS = 100
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -61,7 +61,7 @@ def preprocess():
 # Function to evaluate and save results for each strategy iteratively
 def evaluate_strategies( strategy):
     sampled_data = preprocess()
-    output_file_path = f'{strategy}.xlsx'
+    output_file_path = f'{strategy}_HPC.xlsx'
     
     if os.path.exists(output_file_path):
         evaluated_data = pd.read_excel(output_file_path)
@@ -99,7 +99,7 @@ def evaluate_strategies( strategy):
         print(f'Iteration {index+1}: Results appended and saved for statement "{row["Statement"]}"')
 
         # Pause to avoid overwhelming the server or hitting rate limits
-        time.sleep(5)
+        # time.sleep(5)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -107,4 +107,8 @@ def evaluate_strategies( strategy):
     print(f'All statements processed for strategy "{strategy}". Elapsed time: {elapsed_time} s')
     return evaluated_data
 
-
+evaluate_strategies(PF_ENUM.BASELINE)
+evaluate_strategies(PF_ENUM.KEYWORD)
+evaluate_strategies(PF_ENUM.RARR)
+evaluate_strategies(PF_ENUM.HISS)
+evaluate_strategies(PF_ENUM.RAGAR)
