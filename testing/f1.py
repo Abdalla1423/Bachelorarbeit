@@ -7,7 +7,7 @@ def process_files_to_excel(strategies, model):
     # Iterate over each file in the array of file paths
     for strategy in strategies:
         
-        file_path = f'results_new_dataset/{model}/new shit/{strategy}_{model}.xlsx'
+        file_path = f'results_new_dataset/{model}/{strategy}_{model}.xlsx'
         # Load the Excel file
         df = pd.read_excel(file_path)
 
