@@ -1,6 +1,7 @@
 import spacy
 from retriever.retriever import retrieve
 from models.models import askModel
+import pytextrank
 
 
 # Set up spaCy
