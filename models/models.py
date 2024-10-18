@@ -4,13 +4,13 @@ from openai import OpenAI
 load_dotenv()
 
 # Models
-GPT_3 = ChatOpenAI(model_name="gpt-3.5-turbo-16k", temperature=0, streaming=False)
+GPT_4_mini = ChatOpenAI(model_name="gpt-4o-mini", temperature=0, streaming=False)
 GPT_4 = ChatOpenAI(model_name="gpt-4", temperature=0, streaming=False)
 
 def askModel(prompt, stop=None):
-  # answer = GPT_4.invoke(prompt, stop=stop)
-  # return answer.content
-  return askLlama(prompt, stop)
+  answer = GPT_4_mini.invoke(prompt, stop=stop)
+  return answer.content
+  # return askLlama(prompt, stop)
 
 def askLlama(prompt, stopSeq):
   openai_api_key = "EMPTY"
@@ -20,7 +20,7 @@ def askLlama(prompt, stopSeq):
       base_url=openai_api_base,
   )
   completion = client.chat.completions.create(
-      model="meta-llama/Meta-Llama-3.1-70B-Instruct",
+      model="meta-llama/Meta-Llama-3.1-8B-Instruct",
       messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": prompt},
