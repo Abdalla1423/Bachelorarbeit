@@ -5,8 +5,9 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 import ast
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 from sklearn.metrics.pairwise import cosine_similarity
+from models.models import askModel
 
 load_dotenv()
 
@@ -15,10 +16,64 @@ os.environ["LANGCHAIN_ENDPOINT"] = os.environ.get("LANGCHAIN_ENDPOINT")
 os.environ["LANGCHAIN_API_KEY"] = os.environ.get("LANGCHAIN_API_KEY")
 os.environ["LANGCHAIN_PROJECT"] = os.environ.get("LANGCHAIN_PROJECT")
 
-NUM_OF_STATEMENTS = 5
+NUM_OF_STATEMENTS = 10
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L12-v2')
 
+
+def compute_relevance(statement, information):
+    ranking = rank_sentences(statement, information)
+    answer = askModel('''Your task is to judge the relevance of a series of information snippets based on a given statement that needs to be verified. For each information snippet you must return verdict as 1 if the information snippet is relevant to verify the given statement or 0 if the information snippet is not be relevant to verify the given statement.
+
+The output should be a well-formatted JSON instance that conforms to the JSON schema below.
+
+As an example, for the schema {"properties": {"foo": {"title": "Foo", "description": "a list of strings", "type": "array", "items": {"type": "string"}}}, "required": ["foo"]}
+the object {"foo": ["bar", "baz"]} is a well-formatted instance of the schema. The object {"properties": {"foo": ["bar", "baz"]}} is not well-formatted.
+
+Here is the output JSON schema:
+{"type": "array", "items": {"$ref": "#/definitions/SnippetFaithfulnessAnswer"}, "definitions": {"SnippetFaithfulnessAnswer": {"title": "SnippetFaithfulnessAnswer", "type": "object", "properties": {"information snippet": {"title": "information snippet", "description": "the original information snippet, word-by-word", "type": "string"}, "reason": {"title": "Reason", "description": "the reason of the verdict", "type": "string"}, "verdict": {"title": "Verdict", "description": "the verdict(0/1) of the faithfulness.", "type": "integer"}}, "required": ["information snippet", "reason", "verdict"]}}}
+
+
+Do not return any preamble or explanations, return only a pure JSON string surrounded by triple backticks (
+).
+
+Examples:
+
+information snippets:
+["Albert Einstein was a genius", "Barack Obama is 54."]
+statement: "Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again."
+answer:
+[{"information snippet": "Albert Einstein was a genius.", "reason": "The context and statement are unrelated", "verdict": 0}, {"information snippet": "Barack Obama is 54.", "reason": "The context and statement are unrelated", "verdict": 0}]
+information snippets:
+["Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again," he said.There have been reports of increased infection rates in some countries that reopened.Our ruling\nCuomo didn’t say that all countries had increased infections after they reopened, and he also didn’t say explicitly that reopening caused the increase in the statement we fact-checked"]
+statement: "Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again."
+answer:
+[{"information snippet": "Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again," he said.There have been reports of increased infection rates in some countries that reopened.Our ruling\nCuomo didn’t say that all countries had increased infections after they reopened, and he also didn’t say explicitly that reopening caused the increase in the statement we fact-checked", "reason": "The snippet is directly referencing the statement.", "verdict": 1}]
+Your actual task:'''
++
+f'''
+context: {ranking[:3]}
+statement: {statement}
+answer: 
+''')    
+    
+    answer_arr = ast.literal_eval(answer[3:-3])
+    verdict_sum = sum([obj['verdict'] for obj in answer_arr])
+    return verdict_sum/3
+
+def rank_sentences(statement, information):
+    # Encode the query and the sentences
+    query_embedding = model.encode(statement, convert_to_tensor=True)
+    sentence_embeddings = model.encode(information, convert_to_tensor=True)
+
+    # Compute cosine similarities
+    cosine_scores = util.pytorch_cos_sim(query_embedding, sentence_embeddings)
+
+    # Rank sentences based on the cosine similarity scores
+    sentence_scores = list(zip(information, cosine_scores[0].cpu().numpy()))
+    ranked_sentences = sorted(sentence_scores, key=lambda x: x[1], reverse=True)
+    
+    return [ranked_sentence[0] for ranked_sentence in ranked_sentences]
 
 def compute_similarity(source_sentence, comparison_sentences):
     # Encode the source sentence and comparison sentences
@@ -29,7 +84,7 @@ def compute_similarity(source_sentence, comparison_sentences):
     similarities = cosine_similarity(source_embedding, comparison_embeddings)
 
     # Return the similarity scores (it's a 1xN matrix, so we extract the row)
-    return similarities[0]
+    return similarities
 
 def clean_context(context):
     return [info[0] for _, infos in context for info in infos]
@@ -45,12 +100,12 @@ def preprocess(strategy, model):
 
 def evaluate_strategies(strategy, model):
     sampled_data = preprocess(strategy, model)
-    output_file_path = f'{strategy}_Faithfulness.xlsx'
+    output_file_path = f'{strategy}_Relevance_2.xlsx'
     
     if os.path.exists(output_file_path):
         evaluated_data = pd.read_excel(output_file_path)
     else:
-        evaluated_data = pd.DataFrame(columns=['Statement', 'Formatted Statement', 'Name', 'Explanation', 'Retrieved Information', 'Faithfulness', 'Sentence Similarity'])
+        evaluated_data = pd.DataFrame(columns=['Statement', 'Formatted Statement', 'Name', 'Determined Veracity', 'Explanation', 'Retrieved Information', 'Faithfulness', 'Sentence Similarity', 'Relevance'])
 
     
     for index, row in sampled_data.iterrows():
@@ -68,11 +123,13 @@ def evaluate_strategies(strategy, model):
         dataset = Dataset.from_dict(data_samples)       
         faithfulness_score = 0
         sentence_similarity = 0
+        relevance_score = 0
         if row['Retrieved Information']:
             score = evaluate(dataset,metrics=[faithfulness])
             res_df = score.to_pandas()
             faithfulness_score = res_df['faithfulness']
-            sentence_similarity = compute_similarity(row['Statement'], row['Retrieved Information'])
+            sentence_similarity = compute_similarity(row['Statement'], row['Retrieved Information'])[0]
+            relevance_score = compute_relevance(row['Statement'], row['Retrieved Information'])
         else:
             print("No retrieved information!")
         
@@ -80,10 +137,12 @@ def evaluate_strategies(strategy, model):
             'Formatted Statement': [row['Formatted Statement']],
             'Statement': [row['Statement']],
             'Name': [row['Name']],
+            'Determined Veracity': [row['Determined Veracity']],
             'Explanation': [row['Explanation']],
             'Retrieved Information': [row['Retrieved Information']],
             'Faithfulness': faithfulness_score,
-            'Sentence Similarity': sentence_similarity[0],
+            'Sentence Similarity': sum(sentence_similarity)/len(sentence_similarity),
+            'Relevance': relevance_score,
         })
         
         evaluated_data = pd.concat([evaluated_data, temp_df], ignore_index=True)
