@@ -20,12 +20,16 @@ def process_files_to_excel(strategies, model):
         TN = 0  # True Negatives (predicted False, actually False)
         FP = 0  # False Positives (predicted True, actually False)
         FN = 0  # False Negatives (predicted False, actually True)
+        NEI = 0 # Num of NEI
 
         # Iterate through each row and count the true/false positives and negatives
         for index, row in df.iterrows():
             original = row['Original Veracity']
             predicted = row['Determined Veracity']
 
+            if predicted == 'nei':
+                NEI += 1
+            
             if original == 'true' and predicted == 'true':
                 TP += 1
             elif original == 'false' and predicted == 'false':
@@ -55,6 +59,7 @@ def process_files_to_excel(strategies, model):
             "True Negatives (TN)": TN,
             "False Positives (FP)": FP,
             "False Negatives (FN)": FN,
+            "NEI's": NEI,
             "Precision (True)": precision_true,
             "Recall (True)": recall_true,
             "F1 Score (True)": f1_true,
@@ -74,6 +79,6 @@ def process_files_to_excel(strategies, model):
     print(f"Results successfully written to {output_file}")
 
 strategies = ["BASELINE", "KEYWORD", "RARR","HISS", "RAGAR"]
-model = "Llama_8B"
+model = "GPT_4"
 
 process_files_to_excel(strategies, model)
