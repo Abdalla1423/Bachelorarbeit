@@ -122,22 +122,15 @@ def hiss(claim):
     while word_seq not in cleanText(ret_text):
       tries -= 1
       if tries == 0:
-         # print("RETARDED")
-         # return '{\n"claim": "' +  claim + '",\n"rating": "' + "RETARDED" + '",\n"factcheck": "' + "DUMB" + '"\n}'
          return "CLAIM: " + claim
       cur_prompt += ret_text +'Answer me ‘yes’ or ‘no’: No.'
       question = ret_text.split('\nTell me')[0].split('\n')[-1]
       question = extract_question(ret_text)
-      # print('QUESTION: ')
-      # print(question)
-      # print('Answer:')
       external_answer = ', '.join(retrieve(question))
-      # print(external_answer)
       cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 
       ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
 
     fullPrompt = cur_prompt + ret_text
-    # print(fullPrompt)
     result = "{" + ret_text.split("{")[-1]
     return result
 
@@ -148,7 +141,3 @@ def cleanText(text: str):
 def extract_question(generated):
     generated = generated.split('Question: ')[-1].split('\nTell me')[0]
     return generated
-
-
-
-# print(hiss("Since 2009, the Ohio Republican Party has made more contacts with voters — nearly 6.6 million — than any other GOP state organization in the nation."))

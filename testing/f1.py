@@ -1,14 +1,11 @@
 import pandas as pd
 
 def process_files_to_excel(strategies, model):
-    # Create an empty list to store the results for each file
     results_list = []
     
-    # Iterate over each file in the array of file paths
     for strategy in strategies:
         
         file_path = f'results_new_dataset/{model}/{strategy}_{model}.xlsx'
-        # Load the Excel file
         df = pd.read_excel(file_path)
 
         # Convert all veracity columns to lowercase to handle inconsistencies
@@ -16,14 +13,14 @@ def process_files_to_excel(strategies, model):
         df['Determined Veracity'] = df['Determined Veracity'].astype(str).str.lower()
 
         # Initialize counts for True Positives, True Negatives, False Positives, and False Negatives
-        TP = 0  # True Positives (predicted True, actually True)
-        TN = 0  # True Negatives (predicted False, actually False)
-        FP = 0  # False Positives (predicted True, actually False)
-        FN = 0  # False Negatives (predicted False, actually True)
-        NEI = 0 # Num of NEI
+        TP = 0  
+        TN = 0  
+        FP = 0 
+        FN = 0 
+        NEI = 0 
 
         # Iterate through each row and count the true/false positives and negatives
-        for index, row in df.iterrows():
+        for _, row in df.iterrows():
             original = row['Original Veracity']
             predicted = row['Determined Veracity']
 
@@ -52,7 +49,6 @@ def process_files_to_excel(strategies, model):
         # Calculate Macro F1 Score
         macro_f1 = (f1_true + f1_false) / 2
 
-        # Append the results for the current file to the results list
         results_list.append({
             "Strategy": strategy,
             "True Positives (TP)": TP,
@@ -70,11 +66,9 @@ def process_files_to_excel(strategies, model):
             "Absolut Score": (TP + TN)/100,
         })
 
-    # Convert the results list to a DataFrame
     results_df = pd.DataFrame(results_list)
 
     output_file = f'results_{model}.xlsx'
-    # Write the DataFrame to an Excel file
     results_df.to_excel(output_file, index=False)
     print(f"Results successfully written to {output_file}")
 

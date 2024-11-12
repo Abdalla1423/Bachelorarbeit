@@ -30,5 +30,3 @@ def askLlama(prompt, stopSeq):
   )
 
   return completion.choices[0].message.content
-
-# print(askModel("Tell me about yourself"))

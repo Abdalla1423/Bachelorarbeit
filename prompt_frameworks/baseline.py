@@ -12,7 +12,6 @@ Based on the main claim and your knowledge, You have to provide:
 - rating: choose between true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format and no other characters''')
-  # print(result)
   return result.replace("\n", "")
   
 def fewshot(claim):
@@ -68,4 +67,3 @@ def base_fewshot(claim):
     rating, explanation = extract_rating_and_explanation(result)
     return '{\n"claim": "' +  claim + '",\n"rating": "' + rating + '",\n"factcheck": "' + explanation.replace('"', '') + '"\n}'
 
-# print(base('David Cicilline was the state representative who opposed tough mandatory sentences for those convicted of domestic violence  and child abuse.'))

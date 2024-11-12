@@ -6,7 +6,6 @@ import pandas as pd
 from dotenv import load_dotenv
 import ast
 from sentence_transformers import SentenceTransformer, util
-from sklearn.metrics.pairwise import cosine_similarity
 from models.models import askModel
 
 load_dotenv()
@@ -62,11 +61,9 @@ answer:
     return verdict_sum/3
 
 def rank_sentences(statement, information):
-    # Encode the query and the sentences
     query_embedding = model.encode(statement, convert_to_tensor=True)
     sentence_embeddings = model.encode(information, convert_to_tensor=True)
 
-    # Compute cosine similarities
     cosine_scores = util.pytorch_cos_sim(query_embedding, sentence_embeddings)
 
     # Rank sentences based on the cosine similarity scores
@@ -74,17 +71,6 @@ def rank_sentences(statement, information):
     ranked_sentences = sorted(sentence_scores, key=lambda x: x[1], reverse=True)
     
     return [ranked_sentence[0] for ranked_sentence in ranked_sentences]
-
-def compute_similarity(source_sentence, comparison_sentences):
-    # Encode the source sentence and comparison sentences
-    source_embedding = model.encode([source_sentence])
-    comparison_embeddings = model.encode(comparison_sentences)
-
-    # Compute cosine similarity between the source sentence and each comparison sentence
-    similarities = cosine_similarity(source_embedding, comparison_embeddings)
-
-    # Return the similarity scores (it's a 1xN matrix, so we extract the row)
-    return similarities
 
 def clean_context(context):
     return [info[0] for _, infos in context for info in infos]
@@ -105,7 +91,7 @@ def evaluate_strategies(strategy, model):
     if os.path.exists(output_file_path):
         evaluated_data = pd.read_excel(output_file_path)
     else:
-        evaluated_data = pd.DataFrame(columns=['Statement', 'Formatted Statement', 'Name', 'Determined Veracity', 'Explanation', 'Retrieved Information', 'Faithfulness', 'Sentence Similarity', 'Relevance'])
+        evaluated_data = pd.DataFrame(columns=['Statement', 'Formatted Statement', 'Name', 'Determined Veracity', 'Explanation', 'Retrieved Information', 'Faithfulness', 'Relevance'])
 
     
     for index, row in sampled_data.iterrows():
@@ -122,13 +108,12 @@ def evaluate_strategies(strategy, model):
         
         dataset = Dataset.from_dict(data_samples)       
         faithfulness_score = 0
-        sentence_similarity = 0
         relevance_score = 0
+
         if row['Retrieved Information']:
             score = evaluate(dataset,metrics=[faithfulness])
             res_df = score.to_pandas()
             faithfulness_score = res_df['faithfulness']
-            sentence_similarity = compute_similarity(row['Statement'], row['Retrieved Information'])[0]
             relevance_score = compute_relevance(row['Statement'], row['Retrieved Information'])
         else:
             print("No retrieved information!")
@@ -141,7 +126,6 @@ def evaluate_strategies(strategy, model):
             'Explanation': [row['Explanation']],
             'Retrieved Information': [row['Retrieved Information']],
             'Faithfulness': faithfulness_score,
-            'Sentence Similarity': sum(sentence_similarity)/len(sentence_similarity),
             'Relevance': relevance_score,
         })
         

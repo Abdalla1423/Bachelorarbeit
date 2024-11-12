@@ -4,9 +4,6 @@ from prompt_frameworks.rarr import rarr
 from prompt_frameworks.baseline import base
 from prompt_frameworks.baseline import base_fewshot
 from prompt_frameworks.keywords import keyword
-from prompt_frameworks.direct import direct
-from prompt_frameworks.folk_cot import folk_cot
-from prompt_frameworks.folk import folk
 from enum import Enum
 import ast
 import pandas as pd
@@ -26,11 +23,14 @@ class PF_ENUM(Enum):
     FOLK_COT = 'FOLK_COT'
     FOLK = 'FOLK'
 
-pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss, 
-           PF_ENUM.RARR: rarr, PF_ENUM.BASELINE: base, 
-           PF_ENUM.BASELINE_FEWSHOT: base_fewshot,
-           PF_ENUM.KEYWORD: keyword, PF_ENUM.DIRECT: direct,
-           PF_ENUM.FOLK_COT: folk_cot, PF_ENUM.FOLK: folk}
+pf_dict = {
+    PF_ENUM.RAGAR: multiCoRAG, 
+    PF_ENUM.HISS: hiss, 
+    PF_ENUM.RARR: rarr, 
+    PF_ENUM.BASELINE: base, 
+    PF_ENUM.BASELINE_FEWSHOT: base_fewshot,
+    PF_ENUM.KEYWORD: keyword
+    }
 
 NUM_OF_STATEMENTS = 100
 

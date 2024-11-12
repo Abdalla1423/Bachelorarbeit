@@ -4,3 +4,4 @@ prompt_frameworks/__pycache__
 models/__pycache__
 retriever/__pycache__
 retriever/qa_retriever/__pycache__
+testing/politifact_datasets/.DS_Store

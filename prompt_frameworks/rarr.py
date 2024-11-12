@@ -2,9 +2,6 @@ from models.models import askModel
 from retriever.retriever import retrieve
 import re
 
-# choose true for evidence supporting the claim, uncertain for neutral or conflicting evidence and false for refuting or no evidence
-# You can be sure that the person made the actual claim so focus only on the contents of the claim!
-
 def question_generation(claim):
   questions = askModel(f'''
 I will check things you said and ask questions. Follow the format and generate questions about the last claim!
@@ -66,17 +63,12 @@ please output your response in the demanded json format and no other characters'
 
 def rarr(claim):
   generated_questions = question_generation(claim)
-  # print(generated_questions)
   extracted_questions = extract_questions(generated_questions)
   qa_pairs = []
   
   for question in extracted_questions:
-    # print(question)
     answer = retrieve(question)
-    # print(answer)
     qa_pairs.append((question, answer))
   prediction = veracityPrediction(claim, qa_pairs)
-  # print(prediction)
   return prediction
 
-# rarr("James Dobson says John McCain said publicly that Hillary Clinton would make a good president.")
