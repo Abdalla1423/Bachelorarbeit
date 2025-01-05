@@ -2,7 +2,7 @@
 # WebResearchRetriever crawls URLs surfaced through the provided search engine. It is possible that some of those URLs will end up pointing to machines residing on an internal network, leadingto an SSRF (Server-Side Request Forgery) attack. To protect yourself against that risk, you can run the requests through a proxy and prevent the crawler from accidentally crawling internal resources.If've taken the necessary precautions, you can set `allow_dangerous_requests` to `True`.
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-from models.models import GPT_3
+from models.models import GPT_4
 from langchain_google_community import GoogleSearchAPIWrapper
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_community.retrievers.web_research import WebResearchRetriever
@@ -15,7 +15,7 @@ def langchain_qa(question):
 
     vectorstore = Chroma(embedding_function=OpenAIEmbeddings(), persist_directory="./chroma_db_oai")
 
-    llm = GPT_3
+    llm = GPT_4
 
     search = GoogleSearchAPIWrapper()
     # search = DuckDuckGoSearchAPIWrapper(region="de-de", time="d", max_results=10)

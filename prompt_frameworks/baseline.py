@@ -1,6 +1,5 @@
 from models.models import askModel
 import re
-from models.models import askLlama
 
 def base(claim):
   result = askModel(f'''You are a well-informed and expert fact-checker.

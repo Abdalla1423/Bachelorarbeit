@@ -43,3 +43,4 @@ def keyword(claim):
 
 
 
+print(extract_keywords_2("More than half of all black children live in single-parent households, a number that has doubled — doubled — since we were children."))

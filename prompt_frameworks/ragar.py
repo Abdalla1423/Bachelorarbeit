@@ -195,7 +195,7 @@ def multiCoRAG(claim):
   for question in questions_list:
     qa_pairs += singleCoRag(claim, question)
   # print("total question_answer pairs: ", qa_pairs)
-  time.sleep(2)
+  # time.sleep(2)
   prediction = veracityPrediction(claim, qa_pairs)
   # verificationQuestions = verificationQuestion(claim, prediction)
   # corrected_questions_list = ast.literal_eval(verificationQuestions)
@@ -221,12 +221,12 @@ def singleCoRag(claim, question):
     answer = retrieve(question)
     # print("answer: ", answer)
     qa_pairs.append((question, answer))
-    time.sleep(5)
+    # time.sleep(5)
     followUpNeededAnswer = followupCheck(claim, qa_pairs)
     # print("Follow up needed: ", followUpNeededAnswer)
     if followUpNeededAnswer == "No" or followUpNeededAnswer == "No.":
       followUpNeeded = True
-      time.sleep(5)
+      # time.sleep(5)
       question = followupQuestion(claim, qa_pairs)
       # print("Follow Question: ", question)
     else:

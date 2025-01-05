@@ -32,7 +32,7 @@ pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss,
            PF_ENUM.KEYWORD: keyword, PF_ENUM.DIRECT: direct,
            PF_ENUM.FOLK_COT: folk_cot, PF_ENUM.FOLK: folk}
 
-NUM_OF_STATEMENTS = 100
+NUM_OF_STATEMENTS = 51
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -49,7 +49,7 @@ def evaluate(claim: str, pf, name = ''):
     return veracity, explanation
 
 def preprocess():
-    sampled_data_file = 'politifact_datasets/cleaned_statements.xlsx'
+    sampled_data_file = 'politifact_datasets/cleaned_statements_copy.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
     sampled_data = sampled_data.head(NUM_OF_STATEMENTS)
     sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':', 1)[-1].strip() if ':' in x else x)
@@ -59,9 +59,9 @@ def preprocess():
 
 
 # Function to evaluate and save results for each strategy iteratively
-def evaluate_strategies( strategy):
+def evaluate_strategies(strategy):
     sampled_data = preprocess()
-    output_file_path = f'{strategy}_HPC.xlsx'
+    output_file_path = f'{strategy}_GPT_4.xlsx'
     
     if os.path.exists(output_file_path):
         evaluated_data = pd.read_excel(output_file_path)
@@ -107,8 +107,8 @@ def evaluate_strategies( strategy):
     print(f'All statements processed for strategy "{strategy}". Elapsed time: {elapsed_time} s')
     return evaluated_data
 
-evaluate_strategies(PF_ENUM.BASELINE)
-evaluate_strategies(PF_ENUM.KEYWORD)
-evaluate_strategies(PF_ENUM.RARR)
-evaluate_strategies(PF_ENUM.HISS)
+# evaluate_strategies(PF_ENUM.BASELINE)
+# evaluate_strategies(PF_ENUM.KEYWORD)
+# evaluate_strategies(PF_ENUM.RARR)
+# evaluate_strategies(PF_ENUM.HISS)
 evaluate_strategies(PF_ENUM.RAGAR)
