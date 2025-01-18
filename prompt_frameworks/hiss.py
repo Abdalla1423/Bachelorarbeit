@@ -3,6 +3,7 @@ from retriever.retriever import retrieve
 import re
  
 basePrompt = ['''
+              
 Claim: "Emerson Moser, who was Crayola’s top crayon molder for almost 40 years, was colorblind."
 A fact checker will decompose the claim into 4 subclaims that are easier to verify:
 1.Emerson Moser was a crayon molder at Crayola.
@@ -105,6 +106,8 @@ Output:
   "factcheck": "The claim that Cheri Beasley backs tax hikes even on families making under $75,000 is refuted. While Beasley supports student loan forgiveness, the connection made between this position and tax hikes for families earning under $75,000 is misleading. There is no evidence to suggest that Beasley has explicitly advocated for such tax hikes. The claim appears to misrepresent Beasley's stance on taxation by inaccurately linking it to her support for student loan forgiveness."
 }
 
+Please exactly continue the given structure for the following claim.
+              
 Claim: ''', '''A fact checker will''',
  ]
  
@@ -122,23 +125,18 @@ def hiss(claim):
     while word_seq not in cleanText(ret_text):
       tries -= 1
       if tries == 0:
-         # print("RETARDED")
-         # return '{\n"claim": "' +  claim + '",\n"rating": "' + "RETARDED" + '",\n"factcheck": "' + "DUMB" + '"\n}'
          return "CLAIM: " + claim
       cur_prompt += ret_text +'Answer me ‘yes’ or ‘no’: No.'
       question = ret_text.split('\nTell me')[0].split('\n')[-1]
       question = extract_question(ret_text)
-      # print('QUESTION: ')
-      # print(question)
-      # print('Answer:')
       external_answer = ', '.join(retrieve(question))
-      # print(external_answer)
       cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 
       ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
+      print(ret_text)
 
     fullPrompt = cur_prompt + ret_text
-    # print(fullPrompt)
     result = "{" + ret_text.split("{")[-1]
+
     return result
 
 def cleanText(text: str):
@@ -149,6 +147,4 @@ def extract_question(generated):
     generated = generated.split('Question: ')[-1].split('\nTell me')[0]
     return generated
 
-
-
-# print(hiss("Since 2009, the Ohio Republican Party has made more contacts with voters — nearly 6.6 million — than any other GOP state organization in the nation."))
+# print(hiss("Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again."))

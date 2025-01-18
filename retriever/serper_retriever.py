@@ -15,8 +15,9 @@ import nltk
 from newspaper import Article
 from PyPDF2 import PdfReader
 from io import BytesIO
-nltk.download('punkt')
-nltk.download('punkt_tab')
+import time
+# nltk.download('punkt')
+# nltk.download('punkt_tab')
 
 from retriever.info import retrieved_information
 
@@ -99,7 +100,7 @@ def scrape_website_content(url):
         "Accept-Language": "en-US,en;q=0.9",
         "Referer": "https://www.google.com",
       }
-      response = requests.get(url, headers=headers, timeout=10)
+      response = requests.get(url, headers=headers, timeout=5)
       response.raise_for_status()  # Check if the request was successful
       
       # Check if the content type is PDF
@@ -182,6 +183,7 @@ def extract_and_rank(url, query):
     return None
 
 def serper_search(query):
+  time.sleep(2)
   payload = json.dumps({
     "q": query,
     "num": 5,

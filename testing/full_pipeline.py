@@ -1,13 +1,4 @@
-from prompt_frameworks.ragar import multiCoRAG
-from prompt_frameworks.hiss import hiss
-from prompt_frameworks.rarr import rarr
-from prompt_frameworks.baseline import base
-from prompt_frameworks.baseline import base_fewshot
-from prompt_frameworks.keywords import keyword
-from prompt_frameworks.direct import direct
-from prompt_frameworks.folk_cot import folk_cot
-from prompt_frameworks.folk import folk
-from enum import Enum
+from type_definitions import pf_dict, PF_ENUM, MODELS
 import ast
 import pandas as pd
 from retriever.info import retrieved_information
@@ -15,24 +6,9 @@ import time
 import os
 
 
-class PF_ENUM(Enum):
-    RAGAR = 'RAGAR'
-    HISS = 'HISS'
-    RARR = 'RARR'
-    BASELINE = 'BASELINE'
-    BASELINE_FEWSHOT = 'BASELINE_FEWSHOT'
-    KEYWORD = 'KEYWORD'
-    DIRECT = 'DIRECT'
-    FOLK_COT = 'FOLK_COT'
-    FOLK = 'FOLK'
 
-pf_dict = {PF_ENUM.RAGAR: multiCoRAG, PF_ENUM.HISS: hiss, 
-           PF_ENUM.RARR: rarr, PF_ENUM.BASELINE: base, 
-           PF_ENUM.BASELINE_FEWSHOT: base_fewshot,
-           PF_ENUM.KEYWORD: keyword, PF_ENUM.DIRECT: direct,
-           PF_ENUM.FOLK_COT: folk_cot, PF_ENUM.FOLK: folk}
 
-NUM_OF_STATEMENTS = 51
+NUM_OF_STATEMENTS = 100
 
 def evaluate(claim: str, pf, name = ''):
     statement = name + " says " + claim
@@ -40,16 +16,16 @@ def evaluate(claim: str, pf, name = ''):
     try:
         verdict = ast.literal_eval(verdict_str)
     except:
-        print("INCORRECT FORM")
         print(verdict_str)
+        print("INCORRECT FORM")
         return 'incorrect form', ''
-    print(verdict_str)
     veracity = verdict["rating"]
+    print(verdict)
     explanation = verdict['factcheck']
     return veracity, explanation
 
 def preprocess():
-    sampled_data_file = 'politifact_datasets/cleaned_statements_copy.xlsx'
+    sampled_data_file = 'politifact_datasets/cleaned_statements.xlsx'
     sampled_data = pd.read_excel(sampled_data_file)
     sampled_data = sampled_data.head(NUM_OF_STATEMENTS)
     sampled_data['Statement'] = sampled_data['Statement'].apply(lambda x: x.split(':', 1)[-1].strip() if ':' in x else x)
@@ -59,9 +35,9 @@ def preprocess():
 
 
 # Function to evaluate and save results for each strategy iteratively
-def evaluate_strategies(strategy):
+def evaluate_strategies(strategy, model):
     sampled_data = preprocess()
-    output_file_path = f'{strategy}_GPT_4.xlsx'
+    output_file_path = f'{strategy}_{model}.xlsx'
     
     if os.path.exists(output_file_path):
         evaluated_data = pd.read_excel(output_file_path)
@@ -75,7 +51,9 @@ def evaluate_strategies(strategy):
     
     for index, row in sampled_data.iterrows():
         # Check if the current statement has already been processed (to avoid duplicates)
-        if not evaluated_data[evaluated_data['Statement'] == row['Statement']].empty:
+        # and filtered_data.iloc[0]["Determined Veracity"] != "incorrect form"
+        filtered_data = evaluated_data[evaluated_data['Statement'] == row['Statement']]
+        if not filtered_data.empty: 
             print(f"Statement {row['Statement']} already processed. Skipping.")
             continue
         
@@ -107,8 +85,8 @@ def evaluate_strategies(strategy):
     print(f'All statements processed for strategy "{strategy}". Elapsed time: {elapsed_time} s')
     return evaluated_data
 
-# evaluate_strategies(PF_ENUM.BASELINE)
-# evaluate_strategies(PF_ENUM.KEYWORD)
-# evaluate_strategies(PF_ENUM.RARR)
-# evaluate_strategies(PF_ENUM.HISS)
-evaluate_strategies(PF_ENUM.RAGAR)
+# evaluate_strategies(PF_ENUM.BASELINE.value, MODELS.LLAMA_8B.value)
+evaluate_strategies(PF_ENUM.KEYWORD.value, MODELS.LLAMA_8B.value)
+evaluate_strategies(PF_ENUM.RARR.value, MODELS.LLAMA_8B.value)
+evaluate_strategies(PF_ENUM.HISS.value, MODELS.LLAMA_8B.value)
+evaluate_strategies(PF_ENUM.RAGAR.value, MODELS.LLAMA_8B.value)

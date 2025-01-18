@@ -1,13 +1,16 @@
 import pandas as pd
+from type_definitions import PF_ENUM
+from type_definitions import MODELS
 
-def process_files_to_excel(strategies, model):
+def calculate_F1(strategies, model):
     # Create an empty list to store the results for each file
     results_list = []
+    nei_forms = ['nei', 'inconclusive', 'unverified', 'unkown', 'unverifiable', 'mixed']
     
     # Iterate over each file in the array of file paths
     for strategy in strategies:
         
-        file_path = f'results_new_dataset/{model}/{strategy}_{model}.xlsx'
+        file_path = f'results_new_dataset_cleaned/{model}/{strategy}_{model}.xlsx'
         # Load the Excel file
         df = pd.read_excel(file_path)
 
@@ -20,23 +23,26 @@ def process_files_to_excel(strategies, model):
         TN = 0  # True Negatives (predicted False, actually False)
         FP = 0  # False Positives (predicted True, actually False)
         FN = 0  # False Negatives (predicted False, actually True)
-        NEI = 0 # Num of NEI
+        NEIT = 0 # Num of NEI for true cases
+        NEIF = 0 # Num of NEI for true cases
 
         # Iterate through each row and count the true/false positives and negatives
         for index, row in df.iterrows():
             original = row['Original Veracity']
             predicted = row['Determined Veracity']
 
-            if predicted == 'nei':
-                NEI += 1
-            
+            if predicted in nei_forms:
+                if original == 'true':
+                    NEIT += 1
+                else:
+                    NEIF += 1
             if original == 'true' and predicted == 'true':
                 TP += 1
             elif original == 'false' and predicted == 'false':
                 TN += 1
-            elif original == 'false' and (predicted == 'true' or predicted == 'nei'):
+            elif original == 'false' and (predicted == 'true' or predicted in nei_forms):
                 FP += 1
-            elif original == 'true' and (predicted == 'false' or predicted == 'nei'):
+            elif original == 'true' and (predicted == 'false' or predicted in nei_forms):
                 FN += 1
 
         # Calculate Precision, Recall, and F1 Score for True class
@@ -53,21 +59,31 @@ def process_files_to_excel(strategies, model):
         macro_f1 = (f1_true + f1_false) / 2
 
         # Append the results for the current file to the results list
+        # results_list.append({
+        #     "Strategy": strategy,
+        #     "True Positives (TP)": TP,
+        #     "True Negatives (TN)": TN,
+        #     "False Positives (FP)": FP,
+        #     "False Negatives (FN)": FN,
+        #     "NEI(True)": NEIT,
+        #     "NEI(False)": NEIF,
+        #     "Precision (True)": precision_true,
+        #     "Recall (True)": recall_true,
+        #     "F1 Score (True)": f1_true,
+        #     "Precision (False)": precision_false,
+        #     "Recall (False)": recall_false,
+        #     "F1 Score (False)": f1_false,
+        #     "Macro F1 Score": macro_f1,
+        #     "Absolut Score": (TP + TN)/100,
+        # })
+
         results_list.append({
             "Strategy": strategy,
-            "True Positives (TP)": TP,
-            "True Negatives (TN)": TN,
-            "False Positives (FP)": FP,
-            "False Negatives (FN)": FN,
-            "NEI's": NEI,
-            "Precision (True)": precision_true,
-            "Recall (True)": recall_true,
             "F1 Score (True)": f1_true,
-            "Precision (False)": precision_false,
-            "Recall (False)": recall_false,
             "F1 Score (False)": f1_false,
-            "Macro F1 Score": macro_f1,
-            "Absolut Score": (TP + TN)/100,
+            "NEI(True)": NEIT,
+            "NEI(False)": NEIF,
+            "Macro F1 Score": macro_f1
         })
 
     # Convert the results list to a DataFrame
@@ -78,7 +94,6 @@ def process_files_to_excel(strategies, model):
     results_df.to_excel(output_file, index=False)
     print(f"Results successfully written to {output_file}")
 
-strategies = ["BASELINE", "KEYWORD", "RARR","HISS", "RAGAR"]
-model = "GPT_4"
+strategies = [PF_ENUM.BASELINE.value, PF_ENUM.KEYWORD.value, PF_ENUM.RARR.value, PF_ENUM.HISS.value, PF_ENUM.RAGAR.value]
 
-process_files_to_excel(strategies, model)
+calculate_F1(strategies, MODELS.GPT_4_mini.value)

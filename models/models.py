@@ -2,7 +2,6 @@ from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 from openai import OpenAI
 import ollama
-
 load_dotenv()
 
 # Models
@@ -10,9 +9,9 @@ GPT_4_mini = ChatOpenAI(model_name="gpt-4o-mini", temperature=0, streaming=False
 GPT_4 = ChatOpenAI(model_name="gpt-4", temperature=0, streaming=False)
 
 def askModel(prompt, stop=None):
-  answer = GPT_4.invoke(prompt, stop=stop)
+  answer = GPT_4_mini.invoke(prompt, stop=stop)
   return answer.content
-  # return askLlama(prompt, stop)
+  # return askLlamaOllama(prompt, stop)
 
 def askLlamaVllm(prompt, stopSeq):
   openai_api_key = "EMPTY"
@@ -44,4 +43,3 @@ def askLlamaOllama(prompt, stopSeq):
   options = {"stop" : stopSeq}
   )
   return response['message']['content']
-

@@ -1,9 +1,7 @@
 from models.models import askModel
 from retriever.retriever import retrieve
 import re
-
-# choose true for evidence supporting the claim, uncertain for neutral or conflicting evidence and false for refuting or no evidence
-# You can be sure that the person made the actual claim so focus only on the contents of the claim!
+from prompt_frameworks.veracity_prediction import veracityPrediction
 
 def question_generation(claim):
   questions = askModel(f'''
@@ -52,31 +50,14 @@ def extract_questions(text):
     
     return questions
 
-def veracityPrediction(claim, qa_pairs):
-  return askModel(f'''You are a well-informed and expert fact-checker.
-You are provided with question-answer pairs regarding the following claim: {claim}
-It is guaranteed that the person made the claim, so focus only on the contents of the claim!
-These are the provided questions and relevant answers to the question to verify the claim:
-< {qa_pairs}>
-Based on the main claim and the question-answers provided, You have to provide:
-- claim: the original claim,
-- rating: choose between true, false and NEI(not enough information),
-- factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format and no other characters''')
-
 def rarr(claim):
   generated_questions = question_generation(claim)
-  # print(generated_questions)
   extracted_questions = extract_questions(generated_questions)
   qa_pairs = []
   
   for question in extracted_questions:
-    # print(question)
     answer = retrieve(question)
-    # print(answer)
     qa_pairs.append((question, answer))
   prediction = veracityPrediction(claim, qa_pairs)
-  # print(prediction)
   return prediction
 
-# rarr("James Dobson says John McCain said publicly that Hillary Clinton would make a good president.")

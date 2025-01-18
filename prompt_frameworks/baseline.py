@@ -2,16 +2,15 @@ from models.models import askModel
 import re
 
 def base(claim):
+  claimant, pureclaim = claim.split("says", 1)
   result = askModel(f'''You are a well-informed and expert fact-checker.
-You are provided with the following claim: {claim}
-It is guaranteed that the person made the claim, so focus only on the contents of the claim!
+You are provided with the following claim claim made by {claimant} : {pureclaim}
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
 - rating: choose between true, false and NEI(not enough information),
 - factcheck: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format and no other characters''')
-  # print(result)
+please output your response in the demanded json format without any additional characters and don't surrond the json with backticks!''')
   return result.replace("\n", "")
   
 def fewshot(claim):
@@ -67,4 +66,3 @@ def base_fewshot(claim):
     rating, explanation = extract_rating_and_explanation(result)
     return '{\n"claim": "' +  claim + '",\n"rating": "' + rating + '",\n"factcheck": "' + explanation.replace('"', '') + '"\n}'
 
-# print(base('David Cicilline was the state representative who opposed tough mandatory sentences for those convicted of domestic violence  and child abuse.'))
