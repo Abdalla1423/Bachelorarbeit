@@ -1,1 +1,6 @@
 .env
+.venv
+prompt_frameworks/__pycache__
+models/__pycache__
+retriever/__pycache__
+retriever/qa_retriever/__pycache__
