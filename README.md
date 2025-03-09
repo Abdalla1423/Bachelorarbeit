@@ -63,5 +63,3 @@ The F1 MACRO score is calculated per model to assess performance.
      ```bash
      python quality_assessment.py
      ```
-
-# export PYTHONPATH=$PYTHONPATH:/Users/I747530/Desktop/BA/bachelor-thesis-eltayeb
