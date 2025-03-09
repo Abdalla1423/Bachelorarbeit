@@ -37,9 +37,9 @@ def initialQuestion(claim):
   methodology.
   8: Create a pointed factcheck question
   for the claim.
-  Return only a python list containing 
-  the question in text format and no other characters.
-  Don't include any types of quotation marks or apostroph in the question
+  Return a python list containing 
+  the question as a string (surrounded by single quotes) and no other text.
+  Don't include any apostroph inside of words in the question
       ''')
 
 def followupQuestion(claim, qa_pairs):
@@ -74,8 +74,9 @@ should point out the exact issue
 in the
 claim/statement that you are phrasing
 your question around.
-Reply only with the followup question and
-nothing else.''')
+Return a python list containing 
+the question as a string (surrounded by single quotes) and no other text.
+Don't include any apostroph inside of words in the question''')
 
 def followupCheck(claim, qa_pairs):
   return askModel(f'''You are an expert fact-checker given an
@@ -96,8 +97,10 @@ or else answer, "No"''')
 
 def multiCoRAG(claim):
   questions = initialQuestion(claim)
-  questions_list = ast.literal_eval(questions)
-  # questions_list = extract_questions(questions.replace('"', ""))
+  # print(questions)
+  # questions_list = ast.literal_eval(questions)
+  print(questions)
+  questions_list = extract_questions(questions.replace('"', ""))
   qa_pairs = []
   for question in questions_list:
     qa_pairs += singleCoRag(claim, question)

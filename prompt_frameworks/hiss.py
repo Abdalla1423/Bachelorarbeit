@@ -33,8 +33,8 @@ Answer: Moser has had tritanomaly, a type of colorblindness that makes it diffic
 Output: 
 {
   "claim": "Emerson Moser, who was Crayola’s top crayon molder for almost 40 years, was colorblind.",
-  "rating": "true",
-  "factcheck": "The claim that Emerson Moser was Crayola’s top crayon molder for almost 40 years and was colorblind is supported by the information provided. There is official documentation indicating that Emerson Moser worked as a crayon molder at Crayola, and credible sources confirm that he was Crayola’s top crayon molder. Although the documentation suggests that Moser worked at Crayola for 35 years rather than 'almost 40 years,' this minor discrepancy does not significantly undermine the overall claim. Additionally, it is confirmed that Moser had tritanomaly, a type of colorblindness, which supports the final part of the claim."
+  "label": "supported",
+  "explanation": "The claim that Emerson Moser was Crayola’s top crayon molder for almost 40 years and was colorblind is supported by the information provided. There is official documentation indicating that Emerson Moser worked as a crayon molder at Crayola, and credible sources confirm that he was Crayola’s top crayon molder. Although the documentation suggests that Moser worked at Crayola for 35 years rather than 'almost 40 years,' this minor discrepancy does not significantly undermine the overall claim. Additionally, it is confirmed that Moser had tritanomaly, a type of colorblindness, which supports the final part of the claim."
 }
 
 Claim: "Bernie Sanders said 85 million Americans have no health insurance."
@@ -56,8 +56,8 @@ Answer: Bernie Sanders omitted that his figure included people who either have n
 Output: 
 {
   "claim": "Bernie Sanders said 85 million Americans have no health insurance.",
-  "rating": "false",
-  "factcheck": "The claim made by Bernie Sanders that 85 million Americans have no health insurance is refuted by the information provided. While Sanders did mention the figure of 85 million Americans, it was in reference to the total number of uninsured and under-insured individuals, not just those without any health insurance. The Commonwealth Fund survey cited by Sanders' spokesperson confirms that the 85 million figure includes both uninsured and inadequately insured individuals, making Sanders' statement misleading."
+  "label": "refuted",
+  "explanation": "The claim made by Bernie Sanders that 85 million Americans have no health insurance is refuted by the information provided. While Sanders did mention the figure of 85 million Americans, it was in reference to the total number of uninsured and under-insured individuals, not just those without any health insurance. The Commonwealth Fund survey cited by Sanders' spokesperson confirms that the 85 million figure includes both uninsured and inadequately insured individuals, making Sanders' statement misleading."
 }
 
 Claim: "JAG charges Nancy Pelosi with treason and seditious conspiracy."
@@ -79,8 +79,8 @@ Answer: Real Raw News, a disclaimer stating that it contains "humor, parody and 
 Output:
 {
   "claim": "JAG charges Nancy Pelosi with treason and seditious conspiracy.",
-  "rating": "false",
-  "factcheck": "The claim that JAG (Judge Advocate General's Corps) has charged Nancy Pelosi with treason and seditious conspiracy is refuted. There is no evidence to support this claim, and a spokesperson for the U.S. Navy Judge Advocate General's Corps has explicitly stated that it is not true. Furthermore, the source of the claim, Real Raw News, is a website known for publishing fictitious stories under the guise of satire, further discrediting the claim."
+  "label": "refuted",
+  "explanation": "The claim that JAG (Judge Advocate General's Corps) has charged Nancy Pelosi with treason and seditious conspiracy is refuted. There is no evidence to support this claim, and a spokesperson for the U.S. Navy Judge Advocate General's Corps has explicitly stated that it is not true. Furthermore, the source of the claim, Real Raw News, is a website known for publishing fictitious stories under the guise of satire, further discrediting the claim."
 }
 
 Claim: "Cheri Beasley “backs tax hikes — even on families making under $75,000."
@@ -102,8 +102,8 @@ Answer: No evidence found that Cheri Beasley has explicitly advocated for such a
 Output:
 {
   "claim": "Cheri Beasley “backs tax hikes — even on families making under $75,000.",
-  "rating": "false",
-  "factcheck": "The claim that Cheri Beasley backs tax hikes even on families making under $75,000 is refuted. While Beasley supports student loan forgiveness, the connection made between this position and tax hikes for families earning under $75,000 is misleading. There is no evidence to suggest that Beasley has explicitly advocated for such tax hikes. The claim appears to misrepresent Beasley's stance on taxation by inaccurately linking it to her support for student loan forgiveness."
+  "label": "refuted",
+  "explanation": "The claim that Cheri Beasley backs tax hikes even on families making under $75,000 is refuted. While Beasley supports student loan forgiveness, the connection made between this position and tax hikes for families earning under $75,000 is misleading. There is no evidence to suggest that Beasley has explicitly advocated for such tax hikes. The claim appears to misrepresent Beasley's stance on taxation by inaccurately linking it to her support for student loan forgiveness."
 }
 
 Please exactly continue the given structure for the following claim.
@@ -132,7 +132,6 @@ def hiss(claim):
       external_answer = ', '.join(retrieve(question))
       cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 
       ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
-      print(ret_text)
 
     fullPrompt = cur_prompt + ret_text
     result = "{" + ret_text.split("{")[-1]
@@ -146,5 +145,3 @@ def cleanText(text: str):
 def extract_question(generated):
     generated = generated.split('Question: ')[-1].split('\nTell me')[0]
     return generated
-
-# print(hiss("Go look at other countries that went through exactly this, started to reopen, and then they saw the infection rate go back up again."))

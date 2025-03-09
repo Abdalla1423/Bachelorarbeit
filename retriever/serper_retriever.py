@@ -210,13 +210,12 @@ def serper_search(query):
       domain = item.get('link', '')
       # print("DOMAIN", domain)
       if not any(restricted_domain in domain for restricted_domain in restricted_domains):
-        content = extract_and_rank(domain, query)
-        if content:
-          information.append(content)
-          info_and_source.append((content, domain))
-        elif snippet:
-          information.append(snippet)
-          info_and_source.append((snippet, domain))
+        # content = extract_and_rank(domain, query)
+        # if content:
+        #   information.append(content)
+        #   info_and_source.append((content, domain))
+        information.append(snippet)
+        info_and_source.append((snippet, domain))
         # if snippet:
         #   information.append(snippet)
         #   info_and_source.append((snippet, domain))

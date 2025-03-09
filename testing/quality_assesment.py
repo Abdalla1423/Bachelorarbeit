@@ -9,12 +9,12 @@ from sentence_transformers import SentenceTransformer, util
 from models.models import askModel
 from type_definitions import MODELS, PF_ENUM
 
-load_dotenv()
+# load_dotenv()
 
-os.environ["LANGCHAIN_TRACING_V2"] = os.environ.get("LANGCHAIN_TRACING_V2")
-os.environ["LANGCHAIN_ENDPOINT"] = os.environ.get("LANGCHAIN_ENDPOINT")
-os.environ["LANGCHAIN_API_KEY"] = os.environ.get("LANGCHAIN_API_KEY")
-os.environ["LANGCHAIN_PROJECT"] = os.environ.get("LANGCHAIN_PROJECT")
+# os.environ["LANGCHAIN_TRACING_V2"] = os.environ.get("LANGCHAIN_TRACING_V2")
+# os.environ["LANGCHAIN_ENDPOINT"] = os.environ.get("LANGCHAIN_ENDPOINT")
+# os.environ["LANGCHAIN_API_KEY"] = os.environ.get("LANGCHAIN_API_KEY")
+# os.environ["LANGCHAIN_PROJECT"] = os.environ.get("LANGCHAIN_PROJECT")
 
 NUM_OF_STATEMENTS = 1
 
@@ -139,5 +139,5 @@ def evaluate_quality(strategy, model):
     print(f'All statements processed for strategy "{strategy}"')
     return evaluated_data
 
-evaluate_quality(PF_ENUM.RARR.value, MODELS.GPT_4.value)
+# evaluate_quality(PF_ENUM.RARR.value, MODELS.GPT_4.value)
 

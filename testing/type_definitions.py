@@ -25,3 +25,7 @@ class MODELS(Enum):
     GPT_4 = 'GPT_4'
     GPT_4_mini = 'GPT_4_mini'
     LLAMA_8B = 'LLAMA_8B'
+
+class DATASETS(Enum):
+    POLITIFACT = 'POLITIFACT'
+    AVERITEC = 'AVERITEC'

@@ -25,8 +25,8 @@ def extract_keywords_2(text):
 
 def keyword(claim):
     # TEXTRANK
-    pure_claim = claim.split("says")[1]
-    keyword_sentence = extract_keywords_2(pure_claim)
+    # pure_claim = claim.split("says")[1]
+    keyword_sentence = extract_keywords_2(claim)
     information = retrieve(keyword_sentence)
     return veracityPrediction(claim, information)
 

@@ -6,10 +6,10 @@ load_dotenv()
 
 # Models
 GPT_4_mini = ChatOpenAI(model_name="gpt-4o-mini", temperature=0, streaming=False)
-GPT_4 = ChatOpenAI(model_name="gpt-4", temperature=0, streaming=False)
+GPT_4 = ChatOpenAI(model_name="gpt-4o", temperature=0, streaming=False)
 
 def askModel(prompt, stop=None):
-  answer = GPT_4_mini.invoke(prompt, stop=stop)
+  answer = GPT_4.invoke(prompt, stop=stop)
   return answer.content
   # return askLlamaOllama(prompt, stop)
 

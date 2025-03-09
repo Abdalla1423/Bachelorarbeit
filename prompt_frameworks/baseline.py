@@ -1,17 +1,77 @@
 from models.models import askModel
 import re
+import json
+import ast
 
 def base(claim):
+    return base_averitec(claim)
+
+def base_politifact(claim):
   claimant, pureclaim = claim.split("says", 1)
   result = askModel(f'''You are a well-informed and expert fact-checker.
 You are provided with the following claim claim made by {claimant} : {pureclaim}
 
 Based on the main claim and your knowledge, You have to provide:
 - claim: the original claim,
-- rating: choose between true, false and NEI(not enough information),
-- factcheck: and the detailed and elaborate fact-check paragraph.
+- label: choose between true, false and NEI(not enough information),
+- explanation: and the detailed and elaborate fact-check paragraph.
 please output your response in the demanded json format without any additional characters and don't surrond the json with backticks!''')
   return result.replace("\n", "")
+
+def base_averitec(claim):
+  result = askModel(f''' Decide if the last claim is supported, refuted or if nei (not enough information) using your own knowledge. Explain the reasoning step-by-step
+before giving the answer. 
+Generate the output in form of a json as shown in the example below.
+----- Examples:
+Claim: South Africans that drink are amongst the top drinkers in the world.
+Output: {{
+"explanation": "The claim stays amongst the top drinkers not the top first, so since they are 6th, this could be
+plausible. The answer is support.",
+"label": "supported"
+}}
+Claim: All government schools in India are being privatised.
+Output: {{
+"explanation": "There is no plan by the Indian government to privatize primary education as said by the Minister of
+Human Resource Development. The claim is clearly refuted and therefore the answer is refute.",
+"label": "refuted"
+}}
+Claim: {claim}    
+Output:''')
+  extracted_result = get_last_json_object(result)
+  return extracted_result
+
+def get_last_json_object(text):
+    """
+    Extract and return the last JSON object of the form
+    {
+      "label": "...",
+      "explanation": "..."
+    }
+    from the given text.
+
+    Returns:
+        A dictionary representing the parsed JSON if successful, or None if no match is found
+        or if parsing fails.
+    """
+    # Regex Explanation:
+    #   - We look for an opening brace '{'
+    #   - Then "label" : "<some text>"
+    #   - Then "explanation" : "<some text>"
+    #   - Dotall flag (re.DOTALL) allows '.' to match newlines as well.
+    pattern = re.compile(
+        r'(\{\s*"(?:label|explanation)"\s*:\s*".+?"\s*,\s*"(?:label|explanation)"\s*:\s*".+?"\s*\})',
+        re.DOTALL
+    )
+
+
+    matches = pattern.findall(text)
+    if not matches:
+        return None  # No JSON object found that matches our pattern
+
+    # The last matching JSON block as a string
+    last_json_str = matches[-1]
+
+    return last_json_str
   
 def fewshot(claim):
      return askModel(f"""
