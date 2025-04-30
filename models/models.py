@@ -1,45 +1,16 @@
-from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
-from openai import OpenAI
-import ollama
-load_dotenv()
+from models.gpt import askGPT4
+from models.llama import askLlamaOllama, askLlamaKISS
 
-# Models
-GPT_4_mini = ChatOpenAI(model_name="gpt-4o-mini", temperature=0, streaming=False)
-GPT_4 = ChatOpenAI(model_name="gpt-4o", temperature=0, streaming=False)
+current_model = "GPT_4"
+
+
+def setModel(model):
+    global current_model
+    current_model = model
+
 
 def askModel(prompt, stop=None):
-  answer = GPT_4.invoke(prompt, stop=stop)
-  return answer.content
-  # return askLlamaOllama(prompt, stop)
-
-def askLlamaVllm(prompt, stopSeq):
-  openai_api_key = "EMPTY"
-  openai_api_base = "http://localhost:5000/v1"
-  client = OpenAI(
-      api_key=openai_api_key,
-      base_url=openai_api_base,
-  )
-  completion = client.chat.completions.create(
-      model="meta-llama/Meta-Llama-3.1-8B-Instruct",
-      messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": prompt},
-    ],
-      temperature=0,
-      stop=stopSeq
-  )
-
-  return completion.choices[0].message.content
-
-def askLlamaOllama(prompt, stopSeq):
-  response = ollama.chat(model='llama3.1', messages=[
-    {
-      'role': 'user',
-      'content': prompt,
-    },
-  ],
-  stream= False,
-  options = {"stop" : stopSeq}
-  )
-  return response['message']['content']
+    if current_model == "GPT_4":
+        return askGPT4(prompt, stop)
+    else:
+        return askLlamaKISS(prompt, stop)

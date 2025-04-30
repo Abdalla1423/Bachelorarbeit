@@ -1,65 +1,94 @@
-# Project Name
+# Comparing Evidence Retrieval Strategies in AFC
 
-This repository contains tools for evaluating statements using various models and frameworks, calculating F1 MACRO scores, and assessing quality. Follow the setup and instructions below to get started.
+This repository provides code to compare and evaluate different evidence retrieval strategies in Automated Fact-Checking. The project is organized by three primary components:
+
+1. **Models** 
+2. **Retrievers** 
+3. **Prompt Frameworks**
+
+As of now, there are two models (GPT-4 and Llama 3.1), one main retriever (Serper websearch), and four prompt frameworks that each represent a particular retrieval strategy as well as a baseline.
+
+The strategies are:
+
+- **Basic retrieval**: Keyword search  
+- **Question-Guided Retrieval**: RARR  
+- **Multihop Retrieval**: HiSS  
+- **Iterative Refinement**: CoRAG  
+
+(The baseline approach is also included for comparison.)
+
+---
 
 ## Setup
 
 1. **Install Dependencies**  
-   Download and install the required packages:
+   Make sure you have Python 3.9+ installed, then install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **API Keys**  
-   Obtain the following API keys and store them in a `.env` file:
+2. **Install the Project in Editable Mode**  
+   From the project root directory, install in “editable” mode:
+   ```bash
+   pip install -e .
+   ```
+
+3. **Configure API Keys**  
+   Obtain the following API keys and store them in a `.env` file in the root directory:
    - `OPENAI_API_KEY`
    - `SERP_API_KEY`
 
-   optional:
-    - `GOOGLE_API_KEY`
-    - `GOOGLE_CSE_ID`
+   Your `.env` should look like:
+   ```
+   OPENAI_API_KEY=YOUR_OPENAI_KEY
+   SERP_API_KEY=YOUR_SERP_KEY
+   ```
 
-## Evaluation of Statements
+---
 
-1. **Set the Model**  
-   Open `models/models.py` and specify the model you intend to use for evaluation.
+## Running Tests and Evaluations
 
-2. **Choose Prompt Framework and Number of Statements**  
-   - Navigate to the `full_pipeline.py` file in the `testing` folder.
-   - Choose your desired prompt framework.
-   - Set the number of statements to evaluate by adjusting `NUM_OF_STATEMENTS`.
+1. **Navigate to the testing folder**  
+   ```bash
+   cd testing
+   ```
 
-3. **Run the Evaluation**  
-   - Call the function `evaluate_strategies(prompt_framework)` in `full_pipeline.py`.
-   - Run the file:
-     ```bash
-     python full_pipeline.py
-     ```
+2. **Run the Retrieval Pipeline**  
+   To evaluate the dataset using a specific **model** and one or more **strategies**, run:
+   ```bash
+   python full_pipeline.py --model {model} --strategy {strategy1} {strategy2} ...
+   ```
+   - Valid model choices: `gpt4`, `llama8b`  
+   - Valid strategy choices: `baseline`, `keyword`, `rarr`, `hiss`, `ragar`  
 
-   - The evaluated statements will be saved as `{strategy}_evaluated_statements.xlsx`.
+   For example:
+   ```bash
+   python full_pipeline.py --model gpt4 --strategy baseline keyword
+   ```
 
-## Calculating F1 MACRO Score
+   The results will be saved as `{strategy}_{model}_AVERITEC.xlsx`. Each file contains:  
+   - The statement being evaluated  
+   - Original veracity  
+   - Predicted veracity  
+   - Explanation  
+   - Retrieved information  
+   - Gold evidence  
 
-The F1 MACRO score is calculated per model to assess performance.
+3. **Evaluate Overall Performance**  
+   To calculate accuracy and AveriTeC scores for one or more strategies, run:
+   ```bash
+   python scores.py --model {model} --strategy {strategy1} {strategy2} ...
+   ```
+   For example:
+   ```bash
+   python scores.py --model gpt4 --strategy baseline rarr hiss
+   ```
+   The results will be saved as `results_averitec_snippet/{model}/scores_{model}.xlsx`, showing metrics for each strategy requested.
 
-1. **Set the Model and Prompt Framework**  
-   - Navigate to `f1.py` in the `testing` folder.
-   - Specify the model and prompt framework(s) for which you want to calculate the F1 score.
+---
 
-2. **Run the Calculation**  
-   - Call the `calculate_F1(strategies, model)` function and execute:
-     ```bash
-     python f1.py
-     ```
+## License
 
-## Quality Assessment
+[MIT License](LICENSE)
 
-1. **Set the Model and Prompt Framework**  
-   - Go to `quality_assessment.py` in the `testing` folder.
-   - Specify the model and prompt framework for quality evaluation.
-
-2. **Run the Quality Assessment**  
-   - Call `evaluate_quality(strategy, model)` and execute:
-     ```bash
-     python quality_assessment.py
-     ```
+Feel free to modify or extend the code to incorporate additional models, retrievers, or custom prompt frameworks.

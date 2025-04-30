@@ -3,8 +3,9 @@ from retriever.retriever import retrieve
 import re
 from prompt_frameworks.veracity_prediction import veracityPrediction
 
+
 def question_generation(claim):
-  questions = askModel(f'''
+    return askModel(f'''
 I will check things you said and ask questions. Follow the format and generate questions about the last claim!
 It is guaranteed that the person made the claim, so focus only on the contents of the claim!
 (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
@@ -38,26 +39,30 @@ b) I googled: what year does social work has its root in?
 (7) You said: {claim}
 To verify it:
      ''')
-  
-  return questions
+
+
+# The 'rarr' approach implements a question-driven approach to fact-checking:
+# 1) It generates verification questions for the given claim using few-shot examples.
+# 2) It then retrieves relevant information for each question.
+# 3) Lastly, it runs a veracity prediction based on the collected Q&A pairs.
+# The prompts are adapted from Gao et al., 2022.
+
 
 def extract_questions(text):
-    # Regular expression pattern to identify questions
     question_pattern = re.compile(r"[A-Za-z]\)\s*I googled:\s*(.*\?)")
 
-    # Extracting all the questions
     questions = question_pattern.findall(text)
-    
+
     return questions
 
-def rarr(claim):
-  generated_questions = question_generation(claim)
-  extracted_questions = extract_questions(generated_questions)
-  qa_pairs = []
-  
-  for question in extracted_questions:
-    answer = retrieve(question)
-    qa_pairs.append((question, answer))
-  prediction = veracityPrediction(claim, qa_pairs)
-  return prediction
 
+def rarr(claim):
+    generated_questions = question_generation(claim)
+    extracted_questions = extract_questions(generated_questions)
+    qa_pairs = []
+
+    for question in extracted_questions:
+        answer = retrieve(question)
+        qa_pairs.append((question, answer))
+    prediction = veracityPrediction(claim, qa_pairs)
+    return prediction

@@ -1,7 +1,7 @@
 from models.models import askModel
 from retriever.retriever import retrieve
 import re
- 
+
 basePrompt = ['''
               
 Claim: "Emerson Moser, who was Crayola’s top crayon molder for almost 40 years, was colorblind."
@@ -109,37 +109,47 @@ Output:
 Please exactly continue the given structure for the following claim.
               
 Claim: ''', '''A fact checker will''',
- ]
- 
+              ]
+
+# The 'hiss' function attempts to generate a fact-checking conversation using a structured,
+# multi-step approach for the given claim, as defined in the base prompt:
+#
+# Step 1: The claim is dissected into subclaims that are simpler to verify.
+# Step 2: The model generates and answers questions about each subclaim using its own knowledge.
+# Step 3: If the model fails or needs additional information, it retrieves external data.
+# Step 4: Finally, to determine the claim's veracity, the same structure as the standard
+#         veracity prediction prompt.
+# This implementation and associated prompts are adapted from Zhang and Gao, 2023.
+
+
 def hiss(claim):
     word_seq = cleanText('{"claim":"' + claim + '"')
-    cur_prompt = basePrompt[0] +  claim + " " + basePrompt[1]
-    ret_text = askModel(cur_prompt,stop=['Answer me ‘yes’ or ‘no’: No.'])
+    cur_prompt = basePrompt[0] + claim + " " + basePrompt[1]
+    ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
 
     if word_seq in cleanText(ret_text):
-      fullPrompt = cur_prompt + ret_text
-      result = "{" + ret_text.split("{")[-1]
-      return result
-    
-    tries = 5  
-    while word_seq not in cleanText(ret_text):
-      tries -= 1
-      if tries == 0:
-         return "CLAIM: " + claim
-      cur_prompt += ret_text +'Answer me ‘yes’ or ‘no’: No.'
-      question = ret_text.split('\nTell me')[0].split('\n')[-1]
-      question = extract_question(ret_text)
-      external_answer = ', '.join(retrieve(question))
-      cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n' 
-      ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
+        result = "{" + ret_text.split("{")[-1]
+        return result
 
-    fullPrompt = cur_prompt + ret_text
+    tries = 5
+    while word_seq not in cleanText(ret_text):
+        tries -= 1
+        if tries == 0:
+            return "CLAIM: " + claim
+        cur_prompt += ret_text + 'Answer me ‘yes’ or ‘no’: No.'
+        question = ret_text.split('\nTell me')[0].split('\n')[-1]
+        question = extract_question(ret_text)
+        external_answer = ', '.join(retrieve(question))
+        cur_prompt += "\nAnswer:" + ' ' + external_answer + '.\n'
+        ret_text = askModel(cur_prompt, stop=['Answer me ‘yes’ or ‘no’: No.'])
+
     result = "{" + ret_text.split("{")[-1]
 
     return result
 
+
 def cleanText(text: str):
-   return re.sub(r'[^A-Za-z0-9]', '', text)
+    return re.sub(r'[^A-Za-z0-9]', '', text)
 
 
 def extract_question(generated):

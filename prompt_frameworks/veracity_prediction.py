@@ -1,25 +1,12 @@
 from models.models import askModel
 import re
 
+
 def veracityPrediction(claim, information):
-  return proxy_ref_vp(claim, information)
-
-def ragar_vp(claim, information):
-  claimant, pureclaim = claim.split("says", 1)
-  return askModel(f'''You are a well-informed and expert fact-checker.
-You are provided with information regarding the following claim made by {claimant}: {pureclaim}
-These is the provided information to verify the claim:
-< {information}>
-Based on the main claim and the information provided, You have to provide:
-- claim: the original claim,
-- label: choose between true, false and NEI(not enough information),
-- explanation: and the detailed and elaborate fact-check paragraph.
-please output your response in the demanded json format without any additional characters and don't surrond the json with backticks!''')
-
-def proxy_ref_vp(claim, information):
-  result = askModel(f''' 
+    result = askModel(f''' 
 Decide if the evidence supports the last given claim, refutes it, or doesn't give enough information. Explain the reasoning step-by-step
-before giving the answer. Only use the provided information and no additional sources or background knowledge.
+before giving the answer. Only use the provided information and no additional sources or background knowledge. For the label, 
+choose between "supported", "refuted", or "NEI" (not enough information).
 Generate the output in form of a json as shown in the example below.
 ----- Examples:
 Claim: South Africans that drink are amongst the top drinkers in the world.
@@ -46,8 +33,10 @@ Human Resource Development. The claim is clearly refuted and therefore the answe
 Claim: {claim}    
 Evidence: {information}
 Output:''')
-  extracted_result = get_last_json_object(result)
-  return extracted_result
+
+    extracted_result = get_last_json_object(result)
+    return extracted_result
+
 
 def get_last_json_object(text):
     """
@@ -72,13 +61,10 @@ def get_last_json_object(text):
         re.DOTALL
     )
 
-    print("TEXT", text)
-
     matches = pattern.findall(text)
     if not matches:
         return None  # No JSON object found that matches our pattern
 
-    print("MATCHES", matches)
     # The last matching JSON block as a string
     last_json_str = matches[-1]
 
